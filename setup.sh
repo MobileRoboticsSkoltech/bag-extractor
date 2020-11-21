@@ -1,5 +1,5 @@
 #!/bin/bash
-set -xuevo pipefail
+set -uevo pipefail
 
 virtualenv --python=python2.7 venv;
 source venv/bin/activate;
