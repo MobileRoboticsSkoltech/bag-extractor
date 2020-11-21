@@ -30,4 +30,4 @@ On the **first usage**, run ```./setup.sh``` to create virtual environment and i
 ## Troubleshooting
 
 - If you get this error:
-```venv/bin/activate: line 57: PS1: unbound variable```, you should update ```virtualenv``` version
+```venv/bin/activate: line 57: PS1: unbound variable```, you should update ```virtualenv``` version, see [this stackoverflow answer](https://stackoverflow.com/a/48327176) for more info.
