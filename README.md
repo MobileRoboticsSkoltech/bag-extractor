@@ -10,7 +10,9 @@ Note: [Installation of ROS melodic](http://wiki.ros.org/melodic/Installation) **
 **Important**: if you haven't edited your ```~/.bashrc``` for automatic environment 
 variable setup as suggested in [ROS installation instructions 1.5](http://wiki.ros.org/melodic/Installation)
 you need to run ```source /opt/ros/melodic/setup.bash``` in your current shell first.
-------------
+
+------
+
 On the **first usage**, run ```./setup.sh``` to create virtual environment and install requirements.
 
 1. **Run** ```./extract.sh <PATH_TO_BAG> .. <PATH_TO_BAG>``` with **paths to your .bag files** as arguments
