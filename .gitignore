@@ -130,8 +130,13 @@ dmypy.json
 
 .idea/
 
+# Other
 *.png
 
 *.pcd
 
 *.bag
+
+*.jpg
+
+*.csv
