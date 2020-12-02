@@ -5,6 +5,7 @@ IMG_TOPICS=("/basler/pylon_camera_node0/image_raw" "/basler/pylon_camera_node1/i
 PCD_TOPICS=("/azure/points2" "/velodyne/velodyne_points")
 IMU_TOPICS=("/mcu/mcu_imu")
 TEMP_TOPICS=("/mcu/mcu_imu_temp")
+TIME_REF_TOPICS=("/mcu/cameras_ts" "/mcu/lidar_ts")
 
 # Activate virtual environment
 source venv/bin/activate;
@@ -28,6 +29,11 @@ for BAG in "${@}";
   echo "IMU data extraction starting..";
   python2 extract.py --output "$DATA_DIR"\
     --type imu --path "$BAG" --topics "${IMU_TOPICS[@]}" --temp "${TEMP_TOPICS[@]}";
+
+  # Time reference data extraction
+  echo "Time reference data extraction starting..";
+  python2 extract.py --output "$DATA_DIR"\
+    --type time_ref --path "$BAG" --topics "${TIME_REF_TOPICS[@]}";
 
   # PointCloud extraction
   echo "PointCloud data extraction starting..";

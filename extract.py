@@ -4,6 +4,7 @@ from src.rosbag_extraction_utils import RosbagUtils
 
 IMG_TYPE='image'
 IMU_TYPE='imu'
+TIME_REF_TYPE='time_ref'
 
 
 def main():
@@ -21,7 +22,7 @@ def main():
     )
     parser.add_argument(
         '--type',
-        choices=[IMG_TYPE, IMU_TYPE],
+        choices=[IMG_TYPE, IMU_TYPE, TIME_REF_TYPE],
         help='<Required> Message type for extraction',
         required=True
     )
@@ -44,6 +45,9 @@ def main():
         if temp_topics is not None:
             print("Extracting IMU data..")
             utils.extract_imu(topics, temp_topics)
+    elif args.type == TIME_REF_TYPE:
+        print("Extracting time reference data..")
+        utils.extract_time_ref(topics)
     bag.close()
 
 

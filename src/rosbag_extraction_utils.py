@@ -39,6 +39,17 @@ class RosbagUtils:
             cv2.imwrite(path, cv_img)
             print("Wrote image %s" % filename)
 
+    def extract_time_ref(self, topics):
+        topic_dirs = make_topic_dirs(self.output, "time_ref", topics)
+        for topic in topics:
+            path = os.path.join(topic_dirs[topic], "time_ref.csv")
+            with open(path, "w+") as time_ref_file:
+                writer = csv.writer(time_ref_file, delimiter=',')
+                for _, msg, t in self.bag.read_messages(topics=topic):
+                    writer.writerow(
+                        [msg.header.stamp, msg.time_ref]
+                    )
+
     def extract_imu(self, topics, temp_topics):
         topic_dirs = make_topic_dirs(self.output, "imu", topics)
 
