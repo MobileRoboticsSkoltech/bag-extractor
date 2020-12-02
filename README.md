@@ -19,7 +19,11 @@ On the **first usage**, run ```./setup.sh``` to create virtual environment and i
     - Make sure topics for all message types in ```./extract.sh``` match your topics (you can update them for your needs)
 3. **Data is saved** to the subdirectories of ```./<YOUR_BAG_NAME>``` directories:
     - ```camera<i>``` - images from camera with timestamps as filenames
-    - ```pcd<i>``` - point cloud files with timestamps as filenames
+    - ```pcd<i>``` - point cloud files with timestamps as filename
+    - ```time_ref<i>``` - time reference files, format:
+        ```
+        <timestamp, time_ref>
+        ```
     - ```imu<i>``` - ```csv``` files, format:
         ```
         <timestamp, ox, oy, oz, ax, ay, az, temperature>
