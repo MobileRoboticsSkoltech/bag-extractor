@@ -1,5 +1,5 @@
 #!/bin/bash
-set -uevo pipefail
+set -evo
 
 IMG_TOPICS=("/basler/pylon_camera_node0/image_raw" "/basler/pylon_camera_node1/image_raw")
 PCD_TOPICS=("/azure/points2" "/velodyne/velodyne_points")
@@ -14,7 +14,7 @@ roscore &
 
 for BAG in "${@}";
   do
-  DATA_DIR="$(basename $BAG .bag)"
+  DATA_DIR="$(basename "$BAG" .bag)"
 
   # Create a subdirectory for extraction
   rm -rf "$DATA_DIR";
