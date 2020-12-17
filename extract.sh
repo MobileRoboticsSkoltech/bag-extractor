@@ -40,7 +40,7 @@ for BAG in "${@}";
   for i in 0 1
   do
     topic="${PCD_TOPICS[$i]}";
-    PCD_DIR="$DATA_DIR/pcd$i";
+    PCD_DIR="$DATA_DIR/${topic//\//_}";
     rm -rf "$PCD_DIR";
     mkdir "$PCD_DIR" &&
     rosrun pcl_ros bag_to_pcd "$BAG" "$topic" "$PCD_DIR";

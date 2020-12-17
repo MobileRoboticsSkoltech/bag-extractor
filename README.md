@@ -13,18 +13,18 @@ you need to run ```source /opt/ros/melodic/setup.bash``` in your current shell f
 
 ------
 
-On the **first usage**, run ```./setup.sh``` to create virtual environment and install requirements.
+On the **first usage**, run ```sudo ./setup.sh``` to create virtual environment and install requirements.
 
 1. **Run** ```./extract.sh <PATH_TO_BAG> .. <PATH_TO_BAG>``` with **paths to your .bag files** as arguments
     - Make sure topics for all message types in ```./extract.sh``` match your topics (you can update them for your needs)
-3. **Data is saved** to the subdirectories of ```./<YOUR_BAG_NAME>``` directories:
-    - ```camera<i>``` - images from camera with timestamps as filenames
-    - ```pcd<i>``` - point cloud files with timestamps as filename
-    - ```time_ref<i>``` - time reference files, format:
+3. **Data is saved** to the subdirectories of ```./<YOUR_BAG_NAME>``` directories (subdirectory name = topic name with ```/``` replaced with ```_```):
+    - ```{camera_topic_name}``` - images from camera with timestamps as filenames
+    - ```{poincloud_topic_name}``` - point cloud files with timestamps as filename
+    - ```{time_ref_topic_name}``` - time reference files, format:
         ```
         <timestamp, time_ref>
         ```
-    - ```imu<i>``` - ```csv``` files, format:
+    - ```{imu_topic_name}``` - ```csv``` files, format:
         ```
         <timestamp, ox, oy, oz, ax, ay, az, temperature>
         ```
