@@ -13,7 +13,7 @@ you need to run ```source /opt/ros/melodic/setup.bash``` in your current shell f
 
 ------
 
-On the **first usage**, run ```sudo ./setup.sh``` to create virtual environment and install requirements.
+On the **first usage**, run ```./setup.sh``` to create virtual environment and install requirements.
 
 1. **Run** ```./extract.sh <PATH_TO_BAG> .. <PATH_TO_BAG>``` with **paths to your .bag files** as arguments
     - Make sure topics for all message types in ```./extract.sh``` match your topics (you can update them for your needs)
