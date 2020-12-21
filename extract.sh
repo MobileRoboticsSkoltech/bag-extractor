@@ -1,5 +1,5 @@
 #!/bin/bash
-set -evo
+set -evo pipefail
 
 IMG_TOPICS=("/basler/pylon_camera_node0/image_raw" "/basler/pylon_camera_node1/image_raw")
 PCD_TOPICS=("/azure/points2" "/velodyne/velodyne_points")
