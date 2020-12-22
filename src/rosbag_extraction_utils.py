@@ -13,11 +13,11 @@ def get_timestamp_filename(timestamp, extension):
     return "%d.%s" % (timestamp.secs * 1e9 + timestamp.nsecs, extension)
 
 
-def make_topic_dirs(dir, topic_name, topics):
+def make_topic_dirs(out_dir, topics):
     count = 0
     topic_dirs = {}
     for topic in topics:
-        topic_dirs[topic] = "./%s/%s%d" % (dir, topic_name, count)
+        topic_dirs[topic] = "./%s/%s" % (out_dir, topic.replace('/', '_'))
         make_dir_if_needed(topic_dirs[topic])
         count += 1
     return topic_dirs
@@ -30,7 +30,7 @@ class RosbagUtils:
         self.output = output
 
     def extract_images(self, topics):
-        topic_dirs = make_topic_dirs(self.output, "camera", topics)
+        topic_dirs = make_topic_dirs(self.output, topics)
         bridge = CvBridge()
         for topic, msg, t in self.bag.read_messages(topics=topics):
             cv_img = bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
@@ -40,7 +40,7 @@ class RosbagUtils:
             print("Wrote image %s" % filename)
 
     def extract_time_ref(self, topics):
-        topic_dirs = make_topic_dirs(self.output, "time_ref", topics)
+        topic_dirs = make_topic_dirs(self.output, topics)
         for topic in topics:
             path = os.path.join(topic_dirs[topic], "time_ref.csv")
             with open(path, "w+") as time_ref_file:
@@ -51,7 +51,7 @@ class RosbagUtils:
                     )
 
     def extract_imu(self, topics, temp_topics):
-        topic_dirs = make_topic_dirs(self.output, "imu", topics)
+        topic_dirs = make_topic_dirs(self.output, topics)
 
         for topic, temp_topic in zip(topics, temp_topics):
             path = os.path.join(topic_dirs[topic], "imu.csv")
