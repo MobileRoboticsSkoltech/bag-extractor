@@ -22,7 +22,7 @@ On the **first usage**, run ```./setup.sh``` to create virtual environment and i
     - ```{poincloud_topic_name}``` - point cloud files with timestamps as filename
     - ```{time_ref_topic_name}``` - time reference files, format:
         ```
-        <timestamp, time_ref>
+        <sequence_number, timestamp, time_ref>
         ```
     - ```{imu_topic_name}``` - ```csv``` files, format:
         ```

@@ -5,6 +5,7 @@ from src.rosbag_extraction_utils import RosbagUtils
 IMG_TYPE='image'
 IMU_TYPE='imu'
 TIME_REF_TYPE='time_ref'
+DEPTH_IMG_TYPE='depth_img'
 
 
 def main():
@@ -22,7 +23,7 @@ def main():
     )
     parser.add_argument(
         '--type',
-        choices=[IMG_TYPE, IMU_TYPE, TIME_REF_TYPE],
+        choices=[IMG_TYPE, IMU_TYPE, TIME_REF_TYPE, DEPTH_IMG_TYPE],
         help='<Required> Message type for extraction',
         required=True
     )
@@ -40,6 +41,9 @@ def main():
     if args.type == IMG_TYPE:
         print("Extracting image data..")
         utils.extract_images(topics)
+    elif args.type == DEPTH_IMG_TYPE:
+        print("Extracting depth image data..")
+        utils.extract_images(topics, use_depth=True)
     elif args.type == IMU_TYPE:
         temp_topics = args.temp
         if temp_topics is not None:

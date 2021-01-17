@@ -1,11 +1,14 @@
 #!/bin/bash
 set -evo pipefail
 
-IMG_TOPICS=("/basler/pylon_camera_node0/image_raw" "/basler/pylon_camera_node1/image_raw")
-PCD_TOPICS=("/azure/points2" "/velodyne/velodyne_points")
+# TODO: move to config file
+DEPTH_IMG_TOPICS=("/azure/depth/image_raw" "/azure/ir/image_raw")
+# PCD_TOPICS=("/azure/points2" "/velodyne/velodyne_points")
+PCD_TOPICS=()
+IMG_TOPICS=()
 IMU_TOPICS=("/mcu/mcu_imu")
 TEMP_TOPICS=("/mcu/mcu_imu_temp")
-TIME_REF_TOPICS=("/mcu/cameras_ts" "/mcu/lidar_ts")
+TIME_REF_TOPICS=("/mcu_cameras_ts" "/mcu_lidar_ts" "/mcu_s10_ts" )
 
 # Activate virtual environment
 source venv/bin/activate;
@@ -20,10 +23,25 @@ for BAG in "${@}";
   rm -rf "$DATA_DIR";
   mkdir "$DATA_DIR";
 
+
   # Image extraction
   echo "Image data extraction starting..";
-  python2 extract.py --output "$DATA_DIR"\
+
+  if [ ${#IMG_TOPICS[@]} -eq 0 ] ; then
+    echo "No image topics provided"
+  else
+    python2 extract.py --output "$DATA_DIR"\
     --type image --path "$BAG" --topics "${IMG_TOPICS[@]}";
+  fi
+
+  # Depth image extraction
+  echo "Image data extraction starting..";
+  if [ ${#DEPTH_IMG_TOPICS[@]} -eq 0 ] ; then
+    echo "No image topics provided"
+  else
+    python2 extract.py --output "$DATA_DIR"\
+      --type depth_img --path "$BAG" --topics "${DEPTH_IMG_TOPICS[@]}";
+  fi
 
   # IMU data extraction
   echo "IMU data extraction starting..";
@@ -37,9 +55,8 @@ for BAG in "${@}";
 
   # PointCloud extraction
   echo "PointCloud data extraction starting..";
-  for i in 0 1
+  for topic in "${PCD_TOPICS[@]}"
   do
-    topic="${PCD_TOPICS[$i]}";
     PCD_DIR="$DATA_DIR/${topic//\//_}";
     rm -rf "$PCD_DIR";
     mkdir "$PCD_DIR" &&
