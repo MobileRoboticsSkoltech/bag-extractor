@@ -23,6 +23,10 @@ for BAG in "${@}";
   rm -rf "$DATA_DIR";
   mkdir "$DATA_DIR";
 
+  # Time reference data extraction
+  echo "Time reference data extraction starting..";
+  python2 extract.py --output "$DATA_DIR"\
+    --type time_ref --path "$BAG" --topics "${TIME_REF_TOPICS[@]}";
 
   # Image extraction
   echo "Image data extraction starting..";
@@ -41,17 +45,19 @@ for BAG in "${@}";
   else
     python2 extract.py --output "$DATA_DIR"\
       --type depth_img --path "$BAG" --topics "${DEPTH_IMG_TOPICS[@]}";
+    # Depth image timestamps alignment
+    for topic in "${DEPTH_IMG_TOPICS[@]}";
+    do
+      python2 align.py --time_ref_file "./$DATA_DIR"/_mcu_cameras_ts/time_ref.csv --target_dir "./$DATA_DIR/${topic//\//_}" --ref_seq 12
+    done;
   fi
+
+  # TODO: smartphone timestamps alignment?
 
   # IMU data extraction
   echo "IMU data extraction starting..";
   python2 extract.py --output "$DATA_DIR"\
     --type imu --path "$BAG" --topics "${IMU_TOPICS[@]}" --temp "${TEMP_TOPICS[@]}";
-
-  # Time reference data extraction
-  echo "Time reference data extraction starting..";
-  python2 extract.py --output "$DATA_DIR"\
-    --type time_ref --path "$BAG" --topics "${TIME_REF_TOPICS[@]}";
 
   # PointCloud extraction
   echo "PointCloud data extraction starting..";

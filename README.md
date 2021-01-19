@@ -30,6 +30,11 @@ On the **first usage**, run ```./setup.sh``` to create virtual environment and i
         ```
         *where ox, oy, oz - angular velocity; ax, ay, az - linear acceleration*
 
+## Samsung dataset timestamps alignment
+
+Additionally, the tool aligns timestamps of the depth image files.
+- Uses ```time reference``` topic to get time from another source, 
+and writes transformation meta information to ```_transformation_metainf.csv``` file in the image directory.
 
 ## Troubleshooting
 
