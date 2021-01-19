@@ -1,5 +1,8 @@
 import argparse
-from src.alignment_utils import align
+from src.alignment_utils import align_by_ref, align_by_delta
+
+ALIGN_BY_REF = 'ref'
+ALIGN_BY_DELTA = 'delta'
 
 
 def main():
@@ -16,16 +19,25 @@ def main():
         required=True
     )
     parser.add_argument(
+        "--align_type",
+        choices=[ALIGN_BY_DELTA, ALIGN_BY_REF],
+        help='<Required> Alignment type',
+        required=True
+    )
+    parser.add_argument(
         "--ref_seq",
         type=int,
-        required=True
+        required=False
     )
 
     args = parser.parse_args()
     time_ref_file = args.time_ref_file.name
     target_dir = args.target_dir
-    ref_seq = args.ref_seq
-    align(time_ref_file, target_dir, ref_seq)
+    if args.align_type == ALIGN_BY_REF:
+        ref_seq = args.ref_seq
+        align_by_ref(time_ref_file, target_dir, ref_seq)
+    else:
+        align_by_delta(time_ref_file, target_dir)
 
 
 if __name__ == '__main__':
