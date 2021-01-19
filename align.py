@@ -29,6 +29,10 @@ def main():
         type=int,
         required=False
     )
+    parser.add_argument(
+        "--video_date",
+        required=False
+    )
 
     args = parser.parse_args()
     time_ref_file = args.time_ref_file.name
@@ -37,7 +41,8 @@ def main():
         ref_seq = args.ref_seq
         align_by_ref(time_ref_file, target_dir, ref_seq)
     else:
-        align_by_delta(time_ref_file, target_dir)
+        video_date = args.video_date
+        align_by_delta(time_ref_file, target_dir, video_date)
 
 
 if __name__ == '__main__':

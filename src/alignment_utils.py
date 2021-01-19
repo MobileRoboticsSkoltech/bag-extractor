@@ -35,27 +35,29 @@ def align_by_ref(time_ref, target_dir, ref_seq):
         _align(target_dir, filename_timestamps, extension, delta)
 
 
-def align_by_delta(time_ref, target_dir):
-    with open(time_ref, 'r') as time_ref_file:
-        values = time_ref_file.readline().split(',')
-        seq = int(values[0])
-        ref_timestamp = int(values[1])
-        timestamp = int(values[2])
-        # get list of filenames with timestamps
+def align_by_delta(time_ref, target_dir, video_date):
+    # load frame timestamps csv, rename frames according to it
+    with open(os.path.join("./" + video_date, "./VID_" + video_date + "_timestamps.csv")) as frame_timestamps_file:
         filename_timestamps = map(
-            lambda x: int(x.split('.')[0]),
-            filter(
-                lambda x: x.split('.')[1] in ALLOWED_EXTENSIONS,
-                os.listdir(target_dir)
-            )
+            lambda x: int(x), frame_timestamps_file.readlines()
         )
-        filename_timestamps.sort()
         extension = os.listdir(target_dir)[0].split('.')[1]
-        # obtain delta with the info from time reference file
-        delta = ref_timestamp - timestamp
+        for i, timestamp in enumerate(filename_timestamps):
+            os.rename(
+                os.path.join(target_dir, "frame-%d.png" % (i + 1)),
+                os.path.join(target_dir, str(timestamp) + "." + extension)
+            )
+        with open(time_ref, 'r') as time_ref_file:
+            values = time_ref_file.readline().split(',')
+            seq = int(values[0])
+            ref_timestamp = int(values[1])
+            timestamp = int(values[2])
+            # obtain delta with the info from time reference file
+            delta = ref_timestamp - timestamp
 
-        print("Aligning with sequence %d, timestamps %d - %d" % (seq, timestamp, ref_timestamp))
-        _align(target_dir, filename_timestamps, extension, delta)
+            # align with delta
+            print("Aligning with sequence %d, timestamps %d - %d" % (seq, timestamp, ref_timestamp))
+            _align(target_dir, filename_timestamps, extension, delta)
 
 
 def _align(target_dir, filename_timestamps, extension, delta):

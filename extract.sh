@@ -2,6 +2,7 @@
 set -eo pipefail
 
 # TODO: move to config file
+SMARTPHONE_VIDEO_DIR="_s10_video_frame"
 DEPTH_IMG_TOPICS=("/azure/depth/image_raw" "/azure/ir/image_raw")
 # PCD_TOPICS=("/azure/points2" "/velodyne/velodyne_points")
 PCD_TOPICS=()
@@ -16,7 +17,7 @@ source venv/bin/activate;
 roscore &
 
 BAG=$1
-SMARTPHONE_DIR=$2
+SMARTPHONE_VIDEO_DATE=$2
 
 DATA_DIR="$(basename "$BAG" .bag)"
 
@@ -49,16 +50,22 @@ else
   # Depth image timestamps alignment
   for topic in "${DEPTH_IMG_TOPICS[@]}";
   do
-    python2 align.py --time_ref_file "./$DATA_DIR"/_mcu_cameras_ts/time_ref.csv --target_dir "./$DATA_DIR/${topic//\//_}" --align_type ref  --ref_seq 12
+    python2 align.py --time_ref_file "./$DATA_DIR"/_mcu_cameras_ts/time_ref.csv\
+     --target_dir "./$DATA_DIR/${topic//\//_}" --align_type ref  --ref_seq 12
   done;
 fi
 
 # Smartphone data alignment
 if [ -z "$1" ]
   then
-    echo "No smartphone directory argument supplied"
+    echo "No smartphone video argument supplied"
   else
-    python2 align.py --time_ref_file "./$DATA_DIR"/_mcu_s10_ts/time_ref.csv --target_dir "$SMARTPHONE_DIR" --align_type delta
+    # Create target directory, extract video frames
+    rm -rf "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR";
+    mkdir "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR";
+    ffmpeg -i "./VID_$SMARTPHONE_VIDEO_DATE.mp4" "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR/frame-%d.png"
+    python2 align.py --time_ref_file "./$DATA_DIR"/_mcu_s10_ts/time_ref.csv\
+     --target_dir "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --align_type delta --video_date "$SMARTPHONE_VIDEO_DATE"
 fi
 
 # IMU data extraction
