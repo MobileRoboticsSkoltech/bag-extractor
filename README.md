@@ -15,7 +15,8 @@ you need to run ```source /opt/ros/melodic/setup.bash``` in your current shell f
 
 On the **first usage**, run ```./setup.sh``` to create virtual environment and install requirements.
 
-1. **Run** ```./extract.sh <PATH_TO_BAG> (optional)<VIDEO_DATE>``` with **path to your .bag file** 
+1. Setup **topic names** for extraction in ```./extract.conf``` file
+2. **Run** ```./extract.sh <PATH_TO_BAG> (optional)<VIDEO_DATE>``` with **path to your .bag file** 
     and **smartphone video date** from OpenCamera Sensors (e.g. ```20210119_110550```) as arguments.
     - Make sure topics for all message types in ```./extract.sh``` match your topics (you can update them for your needs)
 3. **Data is saved** to the subdirectories of ```./<YOUR_BAG_NAME>``` directories (subdirectory name = topic name with ```/``` replaced with ```_```):
