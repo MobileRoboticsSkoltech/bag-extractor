@@ -1,16 +1,10 @@
 #!/bin/bash
 set -eo pipefail
 
-# TODO: move to config file
 SMARTPHONE_VIDEO_DIR="_s10_video_frame"
-DEPTH_IMG_TOPICS=("/azure/depth/image_raw" "/azure/ir/image_raw")
-# PCD_TOPICS=("/azure/points2" "/velodyne/velodyne_points")
-PCD_TOPICS=()
-IMG_TOPICS=()
-IMU_TOPICS=("/mcu/mcu_imu")
-TEMP_TOPICS=("/mcu/mcu_imu_temp")
-TIME_REF_TOPICS=("/mcu_cameras_ts" "/mcu_lidar_ts" "/mcu_s10_ts" )
 
+# Import configuration values
+source extract.conf
 # Activate virtual environment
 source venv/bin/activate;
 # Launch roscore in background
