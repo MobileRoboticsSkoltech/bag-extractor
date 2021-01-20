@@ -2,7 +2,9 @@
 
 Extracts files from .bag files using ros nodes and rosbag python code API. 
 
-Note: [Installation of ROS melodic](http://wiki.ros.org/melodic/Installation) **is required**!
+Note: 
+- [Installation of ROS melodic](http://wiki.ros.org/melodic/Installation) **is required**!
+- Requires [ffmpeg](https://ffmpeg.org/) for smartphone video frames extraction
 
 
 ## Usage
