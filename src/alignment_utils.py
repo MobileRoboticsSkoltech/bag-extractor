@@ -1,5 +1,6 @@
 import os
 import csv
+import re
 
 ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'tif']
 
@@ -35,9 +36,13 @@ def align_by_ref(time_ref, target_dir, ref_seq):
         _align(target_dir, filename_timestamps, extension, delta)
 
 
-def align_by_delta(time_ref, target_dir, video_date):
+def align_by_delta(time_ref, target_dir, video_path):
     # load frame timestamps csv, rename frames according to it
-    with open(os.path.join("./" + video_date, "./VID_" + video_date + "_timestamps.csv")) as frame_timestamps_file:
+    video_root, video_filename = os.path.split(video_path)
+    video_name = video_filename.split('.')[0]
+    video_date = re.sub(r"VID_((\d|_)*)", r"\1", video_name)
+
+    with open(os.path.join(video_root, video_date, video_name + "_timestamps.csv")) as frame_timestamps_file:
         filename_timestamps = map(
             lambda x: int(x), frame_timestamps_file.readlines()
         )

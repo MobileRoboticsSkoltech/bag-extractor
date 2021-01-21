@@ -11,7 +11,7 @@ source venv/bin/activate
 roscore &
 
 BAG=$1
-SMARTPHONE_VIDEO_DATE=$2
+SMARTPHONE_VIDEO_PATH=$2
 
 DATA_DIR="$(basename "$BAG" .bag)"
 
@@ -57,9 +57,9 @@ if [ -z "$1" ]
     # Create target directory, extract video frames
     rm -rf "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR"
     mkdir "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR"
-    ffmpeg -i "./VID_$SMARTPHONE_VIDEO_DATE.mp4" "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR/frame-%d.png"
+    ffmpeg -i "$SMARTPHONE_VIDEO_PATH" "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR/frame-%d.png"
     python2 align.py --time_ref_file "./$DATA_DIR"/_mcu_s10_ts/time_ref.csv\
-     --target_dir "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --align_type delta --video_date "$SMARTPHONE_VIDEO_DATE"
+     --target_dir "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --align_type delta --video_path "$SMARTPHONE_VIDEO_PATH"
 fi
 
 # IMU data extraction
