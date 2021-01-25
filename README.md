@@ -34,7 +34,7 @@ On the **first usage**, run ```./setup.sh``` to create virtual environment and i
         <timestamp, ox, oy, oz, ax, ay, az, temperature>
         ```
         *where ox, oy, oz - angular velocity; ax, ay, az - linear acceleration*
-    - ```_s10_video_frame``` - extracted smartphone video frames with timestamps as filename
+    - ```smartphone_video_frames``` - extracted smartphone video frames with timestamps as filename
 
 ## Samsung dataset timestamps alignment
 

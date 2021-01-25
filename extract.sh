@@ -15,7 +15,7 @@
 
 set -eo pipefail
 
-SMARTPHONE_VIDEO_DIR="_s10_video_frame"
+SMARTPHONE_VIDEO_DIR="smartphone_video_frames"
 
 # Import configuration values
 source extract.conf
