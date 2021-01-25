@@ -7,11 +7,14 @@ SMARTPHONE_VIDEO_DIR="_s10_video_frame"
 source extract.conf
 # Activate virtual environment
 source venv/bin/activate
-# Launch roscore in background
-roscore &
 
 BAG=$1
 SMARTPHONE_VIDEO_PATH=$2
+
+if [ ! -f "$BAG" ]; then
+  echo "Provided .bag file doesn't exist"
+  exit
+fi
 
 DATA_DIR="$(basename "$BAG" .bag)"
 
@@ -50,21 +53,29 @@ else
 fi
 
 # Smartphone data alignment
-if [ -z "$1" ]; then
+if [ -z "$2" ]; then
     echo "No smartphone video argument supplied"
 else
   # Create target directory, extract video frames
   rm -rf "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR"
   mkdir "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR"
-  ffmpeg -i "$SMARTPHONE_VIDEO_PATH" "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR/frame-%d.png"
-  python2 align.py --time_ref_file "./$DATA_DIR"/_mcu_s10_ts/time_ref.csv\
-   --target_dir "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --align_type delta --video_path "$SMARTPHONE_VIDEO_PATH"
+  # Check if video exists
+  if [ ! -f "$SMARTPHONE_VIDEO_PATH" ]; then
+    echo "Provided smartphone video doesn't exist"
+  else
+    ffmpeg -i "$SMARTPHONE_VIDEO_PATH" "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR/frame-%d.png"
+    python2 align.py --time_ref_file "./$DATA_DIR"/_mcu_s10_ts/time_ref.csv\
+     --target_dir "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --align_type delta --video_path "$SMARTPHONE_VIDEO_PATH"
+  fi
 fi
 
 # IMU data extraction
 echo "IMU data extraction starting.."
 python2 extract.py --output "$DATA_DIR"\
   --type imu --path "$BAG" --topics "${IMU_TOPICS[@]}" --temp "${TEMP_TOPICS[@]}"
+
+# Launch roscore in background
+roscore &
 
 # PointCloud extraction
 echo "PointCloud data extraction starting.."
