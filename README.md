@@ -20,7 +20,7 @@ On the **first usage**, run ```./setup.sh``` to create virtual environment and i
 1. Setup **topic names** for extraction in ```./extract.conf``` file
 2. **Run** ```./extract.sh <PATH_TO_BAG> (optional)<PATH_TO_VIDEO>``` with **path to your .bag file** 
     and **path to smartphone video** from OpenCamera Sensors as arguments
-     *(note: directory with meta information about video, e.g. ```20210119_233624```, should be in the same path as video)*.
+     *(note: directory with meta information about video, e.g. ```20210119_233624```, should be located in the same path as the video)*.
 3. **Data is saved** to the subdirectories of ```./<YOUR_BAG_NAME>``` directories (subdirectory name = topic name with ```/``` replaced with ```_```):
     - ```{camera_topic_name}``` - images from camera with timestamps as filenames in ```jpeg``` format
     - ```{depth_camera_topic_name}``` - depth images with timestamps as filenames in ```tiff``` format 
@@ -40,7 +40,7 @@ On the **first usage**, run ```./setup.sh``` to create virtual environment and i
 
 Additionally, the tool **aligns timestamps** of the extracted data.
 - Uses ```time reference``` topic to get time from another source, 
-and writes transformation meta information to ```_transformation_metainf.csv``` file in the image directory.
+and writes transformation meta information to ```transformation_metainf.csv``` file in the image directory.
 
 Currently alignment is **implemented for**:
 - *depth images*

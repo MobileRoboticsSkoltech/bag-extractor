@@ -35,9 +35,9 @@ else
 fi
 
 # Depth image extraction
-echo "Image data extraction starting.."
+echo "Depth image data extraction starting.."
 if [ ${#DEPTH_IMG_TOPICS[@]} -eq 0 ] ; then
-  echo "No image topics provided"
+  echo "No depth image topics provided"
 else
   python2 extract.py --output "$DATA_DIR"\
     --type depth_img --path "$BAG" --topics "${DEPTH_IMG_TOPICS[@]}"

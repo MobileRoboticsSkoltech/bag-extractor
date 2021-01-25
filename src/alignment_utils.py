@@ -66,7 +66,7 @@ def align_by_delta(time_ref, target_dir, video_path):
 
 
 def _align(target_dir, filename_timestamps, extension, delta):
-    with open(os.path.join(target_dir, '_transformation_metainf.csv'), 'w') as transformation_file:
+    with open(os.path.join(target_dir, 'transformation_metainf.csv'), 'w') as transformation_file:
         transformation_writer = csv.DictWriter(
             transformation_file, delimiter=',', fieldnames=['seq', 'old_stamp', 'new_stamp']
         )
