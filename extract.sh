@@ -27,7 +27,7 @@ python2 extract.py --output "$DATA_DIR"\
 # Image extraction
 echo "Image data extraction starting.."
 
-if [ ${#IMG_TOPICS[@]} -eq 0 ] ; then
+if [ ${#IMG_TOPICS[@]} -eq 0 ]; then
   echo "No image topics provided"
 else
   python2 extract.py --output "$DATA_DIR"\
@@ -36,7 +36,7 @@ fi
 
 # Depth image extraction
 echo "Depth image data extraction starting.."
-if [ ${#DEPTH_IMG_TOPICS[@]} -eq 0 ] ; then
+if [ ${#DEPTH_IMG_TOPICS[@]} -eq 0 ]; then
   echo "No depth image topics provided"
 else
   python2 extract.py --output "$DATA_DIR"\
@@ -50,16 +50,15 @@ else
 fi
 
 # Smartphone data alignment
-if [ -z "$1" ]
-  then
+if [ -z "$1" ]; then
     echo "No smartphone video argument supplied"
-  else
-    # Create target directory, extract video frames
-    rm -rf "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR"
-    mkdir "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR"
-    ffmpeg -i "$SMARTPHONE_VIDEO_PATH" "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR/frame-%d.png"
-    python2 align.py --time_ref_file "./$DATA_DIR"/_mcu_s10_ts/time_ref.csv\
-     --target_dir "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --align_type delta --video_path "$SMARTPHONE_VIDEO_PATH"
+else
+  # Create target directory, extract video frames
+  rm -rf "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR"
+  mkdir "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR"
+  ffmpeg -i "$SMARTPHONE_VIDEO_PATH" "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR/frame-%d.png"
+  python2 align.py --time_ref_file "./$DATA_DIR"/_mcu_s10_ts/time_ref.csv\
+   --target_dir "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --align_type delta --video_path "$SMARTPHONE_VIDEO_PATH"
 fi
 
 # IMU data extraction
