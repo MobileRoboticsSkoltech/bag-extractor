@@ -16,7 +16,7 @@ import os
 import csv
 import re
 
-ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'tif']
+ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.tif']
 
 
 def align_by_ref(time_ref, target_dir, ref_seq):
@@ -34,14 +34,14 @@ def align_by_ref(time_ref, target_dir, ref_seq):
         ref_timestamp = int(values[1])
         # get list of filenames with timestamps
         filename_timestamps = map(
-            lambda x: int(x.split('.')[0]),
+            lambda x: int(os.path.splitext(x)[0]),
             filter(
-                lambda x: x.split('.')[1] in ALLOWED_EXTENSIONS,
+                lambda x: os.path.splitext(x)[1] in ALLOWED_EXTENSIONS,
                 os.listdir(target_dir)
             )
         )
         filename_timestamps.sort()
-        extension = os.listdir(target_dir)[0].split('.')[1]
+        _, extension = os.path.splitext(os.listdir(target_dir)[0])
         timestamp = filename_timestamps[0]
         # obtain delta with the first filename timestamp and reference timestamp
         delta = ref_timestamp - timestamp
@@ -53,18 +53,18 @@ def align_by_ref(time_ref, target_dir, ref_seq):
 def align_by_delta(time_ref, target_dir, video_path):
     # load frame timestamps csv, rename frames according to it
     video_root, video_filename = os.path.split(video_path)
-    video_name = video_filename.split('.')[0]
+    video_name, _ = os.path.splitext(video_filename)
     video_date = re.sub(r"VID_((\d|_)*)", r"\1", video_name)
 
     with open(os.path.join(video_root, video_date, video_name + "_timestamps.csv")) as frame_timestamps_file:
         filename_timestamps = map(
             lambda x: int(x), frame_timestamps_file.readlines()
         )
-        extension = os.listdir(target_dir)[0].split('.')[1]
+        _, extension = os.path.splitext(os.listdir(target_dir)[0])
         for i, timestamp in enumerate(filename_timestamps):
             os.rename(
                 os.path.join(target_dir, "frame-%d.png" % (i + 1)),
-                os.path.join(target_dir, str(timestamp) + "." + extension)
+                os.path.join(target_dir, str(timestamp) + extension)
             )
         with open(time_ref, 'r') as time_ref_file:
             values = time_ref_file.readline().split(',')
@@ -87,8 +87,8 @@ def _align(target_dir, filename_timestamps, extension, delta):
         transformation_writer.writeheader()
         for seq, old_stamp in enumerate(filename_timestamps):
             new_stamp = int(old_stamp) + delta
-            new_name = str(new_stamp) + "." + extension
-            old_name = str(old_stamp) + "." + extension
+            new_name = str(new_stamp) + extension
+            old_name = str(old_stamp) + extension
             print("Old name: %s new name: %s" % (old_name, new_name))
 
             transformation_writer.writerow({'seq': seq, 'old_stamp': old_stamp, 'new_stamp': new_stamp})
