@@ -14,6 +14,8 @@
 
 import cv2
 import os
+
+import numpy as np
 from cv_bridge import CvBridge
 import csv
 
@@ -48,11 +50,13 @@ class RosbagUtils:
         bridge = CvBridge()
         for topic, msg, t in self.bag.read_messages(topics=topics):
             cv_img = bridge.imgmsg_to_cv2(msg, "passthrough")
-            # saving jpg camera images by default
-            extension = "jpg"
+
             if use_depth:
-                # need to use tiff files to save 32F depth images
-                extension = "tif"
+                # ROS writes 32F images, so conversion is needed
+                depth_array = np.array(cv_img, dtype=np.float32)
+                cv2.normalize(depth_array, depth_array, 0, 1, cv2.NORM_MINMAX, cv2.CV_16U)
+                cv_img = depth_array * 255
+            extension = "png"
             filename = get_timestamp_filename(msg.header.stamp, extension)
             path = os.path.join(topic_dirs[topic], filename)
             cv2.imwrite(path, cv_img)
