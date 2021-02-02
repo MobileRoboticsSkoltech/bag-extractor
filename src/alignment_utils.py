@@ -29,7 +29,8 @@ def align_by_ref(time_ref, target_dir, ref_seq):
             ref_seq: Sequence from time reference file that matches the time of the first image
     """
     with open(time_ref, 'r') as time_ref_file:
-        values = time_ref_file.readlines()[ref_seq - 1].split(',')
+        # get ref sequence
+        values = time_ref_file.readlines()[ref_seq].split(',')
         seq = int(values[0])
         ref_timestamp = int(values[1])
         # get list of filenames with timestamps
@@ -42,8 +43,8 @@ def align_by_ref(time_ref, target_dir, ref_seq):
         )
         filename_timestamps.sort()
         _, extension = os.path.splitext(os.listdir(target_dir)[0])
-        timestamp = filename_timestamps[0]
-        # obtain delta with the first filename timestamp and reference timestamp
+        timestamp = filename_timestamps[1]
+        # obtain delta with the filename timestamp and reference timestamp
         delta = ref_timestamp - timestamp
 
         print("Aligning with sequence %d, timestamps %d - %d" % (seq, timestamp, ref_timestamp))
