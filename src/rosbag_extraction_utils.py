@@ -50,17 +50,19 @@ class RosbagUtils:
         bridge = CvBridge()
         for topic, msg, t in self.bag.read_messages(topics=topics):
             cv_img = bridge.imgmsg_to_cv2(msg, "passthrough")
-
             if use_depth:
                 # ROS writes 32F images, so conversion is needed
                 depth_array = np.array(cv_img, dtype=np.float32)
-                cv2.normalize(depth_array, depth_array, 0, 1, cv2.NORM_MINMAX, cv2.CV_16U)
-                cv_img = depth_array * 255
-            extension = "png"
-            filename = get_timestamp_filename(msg.header.stamp, extension)
-            path = os.path.join(topic_dirs[topic], filename)
-            cv2.imwrite(path, cv_img)
-            print("Wrote image %s" % filename)
+                extension = "npy"
+                filename = get_timestamp_filename(msg.header.stamp, extension)
+                path = os.path.join(topic_dirs[topic], filename)
+                np.save(path, depth_array)
+            else:
+                extension = "png"
+                filename = get_timestamp_filename(msg.header.stamp, extension)
+                path = os.path.join(topic_dirs[topic], filename)
+                cv2.imwrite(path, cv_img)
+                print("Wrote image %s" % filename)
 
     def extract_time_ref(self, topics):
         topic_dirs = make_topic_dirs(self.output, topics)
