@@ -49,6 +49,12 @@ if [ ${#IMG_TOPICS[@]} -eq 0 ]; then
 else
   python2 extract.py --output "$DATA_DIR"\
   --type image --path "$BAG" --topics "${IMG_TOPICS[@]}"
+  # Image timestamps alignment
+  for topic in "${IMG_TOPICS[@]}"
+  do
+    python2 align.py --time_ref_file "./$DATA_DIR"/_mcu_cameras_ts/time_ref.csv\
+     --target_dir "./$DATA_DIR/${topic//\//_}" --align_type ref  --ref_seq 12
+  done
 fi
 
 # Depth image extraction
