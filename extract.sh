@@ -94,6 +94,11 @@ echo "IMU data extraction starting.."
 python2 extract.py --output "$DATA_DIR"\
   --type imu --path "$BAG" --topics "${IMU_TOPICS[@]}" --temp "${TEMP_TOPICS[@]}"
 
+# Camera info data extraction
+echo "Camera info extraction starting.."
+python2 extract.py --output "$DATA_DIR"\
+  --type cam_info --path "$BAG" --topics "${CAM_INFO_TOPICS[@]}"
+
 # Launch roscore in background
 roscore &
 

@@ -35,6 +35,8 @@ On the **first usage**, run ```./setup.sh``` to create virtual environment and i
         <timestamp, ox, oy, oz, ax, ay, az, temperature>
         ```
         *where ox, oy, oz - angular velocity; ax, ay, az - linear acceleration*
+    - ```{camera_info_topic_name}``` - ```yaml``` files (can be easily loaded with yaml.load(data, Loader=yaml.SafeLoader)
+in python)
     - ```smartphone_video_frames``` - extracted smartphone video frames with timestamps as filename
 
 ## Samsung dataset timestamps alignment

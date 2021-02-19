@@ -15,6 +15,7 @@
 import os
 import csv
 import re
+import pandas as pd
 
 ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.npy', '.png', '.pcd']
 
@@ -29,10 +30,16 @@ def align_by_ref(time_ref, target_dir, ref_seq):
             ref_seq: Sequence from time reference file that matches the time of the first image
     """
     with open(time_ref, 'r') as time_ref_file:
-        # get ref sequence
-        values = time_ref_file.readlines()[ref_seq].split(',')
-        seq = int(values[0])
-        ref_timestamp = int(values[1])
+        # values = time_ref_file.readlines()[ref_seq].split(',')
+        # seq = int(values[0])
+        #
+        # ref_timestamp = int(values[1])
+
+        # get ref sequence, seq from header - reference column
+        df = pd.read_csv(time_ref, index_col=0)
+        print(df.head())
+
+        ref_timestamp = int(df.loc[ref_seq, 1])
         # get list of filenames with timestamps
         filename_timestamps = map(
             lambda x: int(os.path.splitext(x)[0]),
@@ -47,7 +54,7 @@ def align_by_ref(time_ref, target_dir, ref_seq):
         # obtain delta with the filename timestamp and reference timestamp
         delta = ref_timestamp - timestamp
 
-        print("Aligning with sequence %d, timestamps %d - %d" % (seq, timestamp, ref_timestamp))
+        print("Aligning timestamps %d - %d" % (timestamp, ref_timestamp))
         _align(target_dir, filename_timestamps, extension, delta)
 
 
@@ -78,6 +85,7 @@ def align_by_delta(time_ref, target_dir, video_path):
             # align with delta
             print("Aligning with sequence %d, timestamps %d - %d" % (seq, timestamp, ref_timestamp))
             _align(target_dir, filename_timestamps, extension, delta)
+
 
 
 def _align(target_dir, filename_timestamps, extension, delta):
