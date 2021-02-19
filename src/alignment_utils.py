@@ -16,7 +16,7 @@ import os
 import csv
 import re
 
-ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.npy', '.png']
+ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.npy', '.png', '.pcd']
 
 
 def align_by_ref(time_ref, target_dir, ref_seq):

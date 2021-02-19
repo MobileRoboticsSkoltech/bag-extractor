@@ -50,11 +50,11 @@ else
   python2 extract.py --output "$DATA_DIR"\
   --type image --path "$BAG" --topics "${IMG_TOPICS[@]}"
   # Image timestamps alignment
-  for topic in "${IMG_TOPICS[@]}"
-  do
-    python2 align.py --time_ref_file "./$DATA_DIR"/_mcu_cameras_ts/time_ref.csv\
-     --target_dir "./$DATA_DIR/${topic//\//_}" --align_type ref  --ref_seq 12
-  done
+#  for topic in "${IMG_TOPICS[@]}"
+#  do
+#    python2 align.py --time_ref_file "./$DATA_DIR"/_mcu_cameras_ts/time_ref.csv\
+#     --target_dir "./$DATA_DIR/${topic//\//_}" --align_type ref  --ref_seq 12
+#  done
 fi
 
 # Depth image extraction
@@ -65,11 +65,11 @@ else
   python2 extract.py --output "$DATA_DIR"\
     --type depth_img --path "$BAG" --topics "${DEPTH_IMG_TOPICS[@]}"
   # Depth image timestamps alignment
-  for topic in "${DEPTH_IMG_TOPICS[@]}"
-  do
-    python2 align.py --time_ref_file "./$DATA_DIR"/_mcu_cameras_ts/time_ref.csv\
-     --target_dir "./$DATA_DIR/${topic//\//_}" --align_type ref  --ref_seq 12
-  done
+#  for topic in "${DEPTH_IMG_TOPICS[@]}"
+#  do
+#    python2 align.py --time_ref_file "./$DATA_DIR"/_mcu_cameras_ts/time_ref.csv\
+#     --target_dir "./$DATA_DIR/${topic//\//_}" --align_type ref  --ref_seq 12
+#  done
 fi
 
 # Smartphone data alignment
@@ -113,6 +113,18 @@ do
     mv "$file" "$pref$suf"
   done
 done
+
+# Azure data alignment
+echo "Azure data alignment starting.."
+if [ ${#AZURE_ALIGN_TOPICS[@]} -eq 0 ]; then
+  echo "No azure topics provided"
+else
+  for topic in "${AZURE_ALIGN_TOPICS[@]}"
+  do
+    python2 align.py --time_ref_file "./$DATA_DIR"/_mcu_cameras_ts/time_ref.csv\
+      --target_dir "./$DATA_DIR/${topic//\//_}" --align_type ref  --ref_seq 12
+  done
+fi
 
 # Kill roscore running in background
 killall roscore
