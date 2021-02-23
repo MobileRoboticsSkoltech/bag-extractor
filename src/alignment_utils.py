@@ -36,10 +36,10 @@ def align_by_ref(time_ref, target_dir, ref_seq):
         # ref_timestamp = int(values[1])
 
         # get ref sequence, seq from header - reference column
-        df = pd.read_csv(time_ref, index_col=0)
+        df = pd.read_csv(time_ref, index_col=0, names=["seq", "time", "time_ref"])
         print(df.head())
 
-        ref_timestamp = int(df.loc[ref_seq, 1])
+        ref_timestamp = int(df.loc[ref_seq, "time"])
         # get list of filenames with timestamps
         filename_timestamps = map(
             lambda x: (os.path.splitext(x)[0], int(os.path.splitext(x)[0])),
