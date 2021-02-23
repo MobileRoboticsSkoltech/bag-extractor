@@ -103,9 +103,9 @@ class RosbagUtils:
                     temp_stamp = imu_msg.header.stamp
                     imu_stamp = temp_msg.header.stamp
 
-                    assert imu_stamp == temp_stamp, "Timestamp in temperature file did not match IMU timestamp"
+                    #assert imu_stamp == temp_stamp, "Timestamp in temperature file did not match IMU timestamp"
                     writer.writerow(
-                        [imu_stamp, av.x, av.y, av.z, la.x, la.y, la.z, temp_msg.temperature]
+                        [imu_stamp, av.x, av.y, av.z, la.x, la.y, la.z]#, temp_msg.temperature]
                     )
                     count += 1
             print("Written %d IMU rows for %s" % (count, topic))
