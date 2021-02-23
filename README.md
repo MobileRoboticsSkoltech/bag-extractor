@@ -6,6 +6,9 @@ Note:
 - [Installation of ROS melodic](http://wiki.ros.org/melodic/Installation) **is required**!
 - Requires [ffmpeg](https://ffmpeg.org/) for smartphone video frames extraction
 
+## Docker
+
+*Work in progress..*
 
 ## Usage
 

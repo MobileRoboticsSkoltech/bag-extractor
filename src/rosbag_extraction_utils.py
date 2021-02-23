@@ -80,7 +80,6 @@ class RosbagUtils:
                 for i, (_, msg, t) in enumerate(
                         self.bag.read_messages(topics=topic)
                 ):
-                    # TODO: fails on test file as /mcu_lidar_ts is not published from 0
                     # if i == 0 and msg.header.seq != 0:
                     #     raise RuntimeError("Messages in .bag file didn't start from seq 0 - %d" % int(msg.header.seq))
 

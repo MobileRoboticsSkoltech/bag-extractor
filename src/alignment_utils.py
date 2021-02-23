@@ -42,15 +42,15 @@ def align_by_ref(time_ref, target_dir, ref_seq):
         ref_timestamp = int(df.loc[ref_seq, 1])
         # get list of filenames with timestamps
         filename_timestamps = map(
-            lambda x: int(os.path.splitext(x)[0]),
+            lambda x: (os.path.splitext(x)[0], int(os.path.splitext(x)[0])),
             filter(
                 lambda x: os.path.splitext(x)[1] in ALLOWED_EXTENSIONS,
                 os.listdir(target_dir)
             )
         )
-        filename_timestamps.sort()
+        filename_timestamps.sort(key=lambda tup: tup[1])
         _, extension = os.path.splitext(os.listdir(target_dir)[0])
-        timestamp = filename_timestamps[1]
+        timestamp = filename_timestamps[1][1]
         # obtain delta with the filename timestamp and reference timestamp
         delta = ref_timestamp - timestamp
 
@@ -66,13 +66,13 @@ def align_by_delta(time_ref, target_dir, video_path):
 
     with open(os.path.join(video_root, video_date, video_name + "_timestamps.csv")) as frame_timestamps_file:
         filename_timestamps = map(
-            lambda x: int(x), frame_timestamps_file.readlines()
+            lambda x: (x, int(x)), frame_timestamps_file.readlines()
         )
         _, extension = os.path.splitext(os.listdir(target_dir)[0])
         for i, timestamp in enumerate(filename_timestamps):
             os.rename(
                 os.path.join(target_dir, "frame-%d.png" % (i + 1)),
-                os.path.join(target_dir, str(timestamp) + extension)
+                os.path.join(target_dir, timestamp[0] + extension)
             )
         with open(time_ref, 'r') as time_ref_file:
             values = time_ref_file.readline().split(',')
@@ -87,17 +87,16 @@ def align_by_delta(time_ref, target_dir, video_path):
             _align(target_dir, filename_timestamps, extension, delta)
 
 
-
 def _align(target_dir, filename_timestamps, extension, delta):
     with open(os.path.join(target_dir, 'transformation_metainf.csv'), 'w') as transformation_file:
         transformation_writer = csv.DictWriter(
             transformation_file, delimiter=',', fieldnames=['seq', 'old_stamp', 'new_stamp']
         )
         transformation_writer.writeheader()
-        for seq, old_stamp in enumerate(filename_timestamps):
+        for seq, (old_name, old_stamp) in enumerate(filename_timestamps):
             new_stamp = int(old_stamp) + delta
             new_name = str(new_stamp) + extension
-            old_name = str(old_stamp) + extension
+            old_name = old_name + extension
             print("Old name: %s new name: %s" % (old_name, new_name))
 
             transformation_writer.writerow({'seq': seq, 'old_stamp': old_stamp, 'new_stamp': new_stamp})

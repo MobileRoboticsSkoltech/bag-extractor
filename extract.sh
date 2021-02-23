@@ -21,6 +21,7 @@ SMARTPHONE_VIDEO_DIR="smartphone_video_frames"
 source extract.conf
 # Activate virtual environment
 source venv/bin/activate
+source /opt/ros/melodic/setup.bash
 
 BAG=$1
 SMARTPHONE_VIDEO_PATH=$2
