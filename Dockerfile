@@ -9,6 +9,7 @@ COPY . .
 
 RUN sudo chmod +x ./extract.sh
 RUN sudo apt-get update -y
+RUN sudo apt-get install psmisc
 RUN sudo apt-get install -y software-properties-common
 RUN sudo add-apt-repository -y universe
 
