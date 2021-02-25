@@ -12,6 +12,7 @@ Build the image:
 ```console
 docker build -t bag-extractor .
 ```
+*Note: you have to rebuild the image after updates in the source code*
 
 Run with:
 ```console
