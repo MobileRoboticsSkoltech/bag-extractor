@@ -7,17 +7,15 @@ WORKDIR .
 # copy all the files to the container
 COPY . .
 
-RUN sudo chmod +x ./extract.sh
-RUN sudo apt-get update -y
-RUN sudo apt-get install psmisc
-RUN sudo apt-get install -y software-properties-common
-RUN sudo add-apt-repository -y universe
+RUN chmod +x ./extract.sh
 
-RUN sudo apt-get update -y
-RUN sudo apt-get install -y python2.7
-RUN sudo apt-get install -y python-pip
+RUN apt-get update -y && apt-get install -y software-properties-common
 
-# install ffmpeg
-RUN sudo apt-get install -y ffmpeg
+# install required packages
+RUN add-apt-repository -y universe && apt-get update -y && apt-get install -y \
+    psmisc \
+    python2.7 \
+    python-pip \
+    ffmpeg
 
 RUN ./setup.sh
