@@ -12,7 +12,7 @@ RUN chmod +x ./extract.sh
 RUN apt-get update -y && apt-get install -y software-properties-common
 
 # install required packages
-RUN add-apt-repository -y universe && apt-get update -y && apt-get install -y \
+RUN add-apt-repository -y ppa:deadsnakes/ppa && apt-get update -y && apt-get install -y \
     psmisc \
     python2.7 \
     python-pip \
