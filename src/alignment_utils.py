@@ -72,7 +72,7 @@ def align_by_delta(time_ref, target_dir, video_path):
         for i, timestamp in enumerate(filename_timestamps):
             os.rename(
                 os.path.join(target_dir, "frame-%d.png" % (i + 1)),
-                os.path.join(target_dir, timestamp[0] + extension)
+                os.path.join(target_dir, timestamp[1] + extension)
             )
         with open(time_ref, 'r') as time_ref_file:
             values = time_ref_file.readline().split(',')
