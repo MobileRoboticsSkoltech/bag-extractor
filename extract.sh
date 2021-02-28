@@ -21,7 +21,7 @@ SMARTPHONE_VIDEO_DIR="smartphone_video_frames"
 source extract.conf
 # Activate virtual environment
 source venv/bin/activate
-#source /opt/ros/melodic/setup.bash
+source /opt/ros/melodic/setup.bash
 
 BAG=$1
 SMARTPHONE_VIDEO_PATH=$2
@@ -31,7 +31,7 @@ if [ ! -f "$BAG" ]; then
   exit
 fi
 
-DATA_DIR="./output/$(basename "$BAG" .bag)"
+DATA_DIR="output/$(basename "$BAG" .bag)"
 
 # Create a subdirectory for extraction
 rm -rf "$DATA_DIR"
