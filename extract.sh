@@ -21,6 +21,7 @@ SMARTPHONE_VIDEO_DIR="smartphone_video_frames"
 source extract.conf
 # Activate virtual environment
 source venv/bin/activate
+source /opt/ros/melodic/setup.bash
 
 BAG=$1
 SMARTPHONE_VIDEO_PATH=$2
@@ -30,11 +31,11 @@ if [ ! -f "$BAG" ]; then
   exit
 fi
 
-DATA_DIR="$(basename "$BAG" .bag)"
+DATA_DIR="output/$(basename "$BAG" .bag)"
 
 # Create a subdirectory for extraction
 rm -rf "$DATA_DIR"
-mkdir "$DATA_DIR"
+mkdir -p "$DATA_DIR"
 
 # Time reference data extraction
 echo "Time reference data extraction starting.."
@@ -50,11 +51,11 @@ else
   python2 extract.py --output "$DATA_DIR"\
   --type image --path "$BAG" --topics "${IMG_TOPICS[@]}"
   # Image timestamps alignment
-  for topic in "${IMG_TOPICS[@]}"
-  do
-    python2 align.py --time_ref_file "./$DATA_DIR"/_mcu_cameras_ts/time_ref.csv\
-     --target_dir "./$DATA_DIR/${topic//\//_}" --align_type ref  --ref_seq 12
-  done
+#  for topic in "${IMG_TOPICS[@]}"
+#  do
+#    python2 align.py --time_ref_file "./$DATA_DIR"/_mcu_cameras_ts/time_ref.csv\
+#     --target_dir "./$DATA_DIR/${topic//\//_}" --align_type ref  --ref_seq 12
+#  done
 fi
 
 # Depth image extraction
@@ -65,11 +66,11 @@ else
   python2 extract.py --output "$DATA_DIR"\
     --type depth_img --path "$BAG" --topics "${DEPTH_IMG_TOPICS[@]}"
   # Depth image timestamps alignment
-  for topic in "${DEPTH_IMG_TOPICS[@]}"
-  do
-    python2 align.py --time_ref_file "./$DATA_DIR"/_mcu_cameras_ts/time_ref.csv\
-     --target_dir "./$DATA_DIR/${topic//\//_}" --align_type ref  --ref_seq 12
-  done
+#  for topic in "${DEPTH_IMG_TOPICS[@]}"
+#  do
+#    python2 align.py --time_ref_file "./$DATA_DIR"/_mcu_cameras_ts/time_ref.csv\
+#     --target_dir "./$DATA_DIR/${topic//\//_}" --align_type ref  --ref_seq 12
+#  done
 fi
 
 # Smartphone data alignment
@@ -94,6 +95,11 @@ echo "IMU data extraction starting.."
 python2 extract.py --output "$DATA_DIR"\
   --type imu --path "$BAG" --topics "${IMU_TOPICS[@]}" --temp "${TEMP_TOPICS[@]}"
 
+# Camera info data extraction
+echo "Camera info extraction starting.."
+python2 extract.py --output "$DATA_DIR"\
+  --type cam_info --path "$BAG" --topics "${CAM_INFO_TOPICS[@]}"
+
 # Launch roscore in background
 roscore &
 
@@ -113,6 +119,18 @@ do
     mv "$file" "$pref$suf"
   done
 done
+
+# Azure data alignment
+echo "Azure data alignment starting.."
+if [ ${#AZURE_ALIGN_TOPICS[@]} -eq 0 ]; then
+  echo "No azure topics provided"
+else
+  for topic in "${AZURE_ALIGN_TOPICS[@]}"
+  do
+    python2 align.py --time_ref_file "./$DATA_DIR"/_mcu_cameras_ts/time_ref.csv\
+      --target_dir "./$DATA_DIR/${topic//\//_}" --align_type ref  --ref_seq 12
+  done
+fi
 
 # Kill roscore running in background
 killall roscore

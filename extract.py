@@ -20,6 +20,7 @@ IMG_TYPE='image'
 IMU_TYPE='imu'
 TIME_REF_TYPE='time_ref'
 DEPTH_IMG_TYPE='depth_img'
+CAMERA_INFO_TYPE='cam_info'
 
 
 def main():
@@ -37,7 +38,7 @@ def main():
     )
     parser.add_argument(
         '--type',
-        choices=[IMG_TYPE, IMU_TYPE, TIME_REF_TYPE, DEPTH_IMG_TYPE],
+        choices=[IMG_TYPE, IMU_TYPE, TIME_REF_TYPE, DEPTH_IMG_TYPE, CAMERA_INFO_TYPE],
         help='<Required> Message type for extraction',
         required=True
     )
@@ -66,6 +67,9 @@ def main():
     elif args.type == TIME_REF_TYPE:
         print("Extracting time reference data..")
         utils.extract_time_ref(topics)
+    elif args.type == CAMERA_INFO_TYPE:
+        print("Extracting camera intrinsic data..")
+        utils.extract_camera_info(topics)
     bag.close()
 
 

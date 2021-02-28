@@ -8,3 +8,4 @@ gnupg
 rospkg
 sensor_msgs
 pypcd
+pandas

@@ -6,6 +6,19 @@ Note:
 - [Installation of ROS melodic](http://wiki.ros.org/melodic/Installation) **is required**!
 - Requires [ffmpeg](https://ffmpeg.org/) for smartphone video frames extraction
 
+## Docker
+
+Build the image:
+```console
+docker build -t bag-extractor .
+```
+*Note: you have to rebuild the image after updates in the source code*
+
+Run with:
+```console
+docker run -v [LOCAL_PATH_TO_BAG]:/[BAG_FILENAME] -v [LOCAL_OUTPUT_DIR]:/output -t bag-extractor [BAG_FILENAME]
+```
+*```-v``` option is used to mount local directories to the image*
 
 ## Usage
 
@@ -21,21 +34,17 @@ On the **first usage**, run ```./setup.sh``` to create virtual environment and i
 2. **Run** ```./extract.sh <PATH_TO_BAG> (optional)<PATH_TO_VIDEO>``` with **path to your .bag file** 
     and **path to smartphone video** from OpenCamera Sensors as arguments
      *(note: directory with meta information about video, e.g. ```20210119_233624```, should be located in the same path as the video)*.
-3. **Data is saved** to the subdirectories of ```./<YOUR_BAG_NAME>``` directories (subdirectory name = topic name with ```/``` replaced with ```_```):
-    - ```{camera_topic_name}``` - images from camera with timestamps as filenames in ```jpeg``` format
-    - ```{depth_camera_topic_name}``` - depth images with timestamps as filenames in ```npy``` format 
-    (can be easily loaded to ```numpy```  with [np.load()](https://numpy.org/doc/stable/reference/generated/numpy.load.html))
-    - ```{poincloud_topic_name}``` - point cloud files with timestamps as filename
-    - ```{time_ref_topic_name}``` - time reference files, format:
-        ```
-        <sequence_number, timestamp, time_ref>
-        ```
-    - ```{imu_topic_name}``` - ```csv``` files, format:
-        ```
-        <timestamp, ox, oy, oz, ax, ay, az, temperature>
-        ```
-        *where ox, oy, oz - angular velocity; ax, ay, az - linear acceleration*
-    - ```smartphone_video_frames``` - extracted smartphone video frames with timestamps as filename
+3. **Data is saved** to the subdirectories of ```./output/<YOUR_BAG_NAME>``` directories (subdirectory name = topic name with ```/``` replaced with ```_```):
+
+| File                            | Description |
+|---------------------------------|-------------|
+| ```{camera_topic_name}```       | images from camera with timestamps as filenames in ```jpeg``` format |
+| ```{depth_camera_topic_name}``` | depth images with timestamps as filenames in ```npy``` format (can be easily loaded to ```numpy```  with [np.load()](https://numpy.org/doc/stable/reference/generated/numpy.load.html)) |   
+| ```{poincloud_topic_name}```    | point cloud files with timestamps as filename |
+| ```{time_ref_topic_name}```     | time reference files, format: ```<sequence_number, timestamp, time_ref>``` |
+| ```{imu_topic_name}```          | ```csv``` files, format: ```<timestamp, ox, oy, oz, ax, ay, az, temperature>``` *where ox, oy, oz - angular velocity; ax, ay, az - linear acceleration* |
+| ```{camera_info_topic_name}```  | ```yaml``` files *(can be easily loaded with yaml.load(data, Loader=yaml.SafeLoader in python)* |
+| ```smartphone_video_frames```   | extracted smartphone video frames with timestamps as filename |
 
 ## Samsung dataset timestamps alignment
 
