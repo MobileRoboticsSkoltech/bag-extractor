@@ -31,7 +31,7 @@ if [ ! -f "$BAG" ]; then
   exit
 fi
 
-DATA_DIR="/output/$(basename "$BAG" .bag)"
+DATA_DIR="./output/$(basename "$BAG" .bag)"
 
 # Create a subdirectory for extraction
 rm -rf "$DATA_DIR"
