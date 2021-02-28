@@ -66,13 +66,13 @@ def align_by_delta(time_ref, target_dir, video_path):
 
     with open(os.path.join(video_root, video_date, video_name + "_timestamps.csv")) as frame_timestamps_file:
         filename_timestamps = map(
-            lambda x: (x, int(x)), frame_timestamps_file.readlines()
+            lambda x: (x.strip('\n'), int(x)), frame_timestamps_file.readlines()
         )
         _, extension = os.path.splitext(os.listdir(target_dir)[0])
         for i, timestamp in enumerate(filename_timestamps):
             os.rename(
                 os.path.join(target_dir, "frame-%d.png" % (i + 1)),
-                os.path.join(target_dir, str(timestamp[1]) + extension)
+                os.path.join(target_dir, timestamp[0] + extension)
             )
         with open(time_ref, 'r') as time_ref_file:
             values = time_ref_file.readline().split(',')
