@@ -33,7 +33,7 @@ fi
 
 DATA_DIR="output/$(basename "$BAG" .bag)"
 
-# Create a subdirectory for extraction
+## Create a subdirectory for extraction
 rm -rf "$DATA_DIR"
 mkdir -p "$DATA_DIR"
 
@@ -73,23 +73,6 @@ else
 #  done
 fi
 
-# Smartphone data alignment
-if [ -z "$2" ]; then
-    echo "No smartphone video argument supplied"
-else
-  # Create target directory, extract video frames
-  rm -rf "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR"
-  mkdir "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR"
-  # Check if video exists
-  if [ ! -f "$SMARTPHONE_VIDEO_PATH" ]; then
-    echo "Provided smartphone video doesn't exist"
-  else
-    ffmpeg -i "$SMARTPHONE_VIDEO_PATH" "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR/frame-%d.png"
-    python2 align.py --time_ref_file "./$DATA_DIR"/_mcu_s10_ts/time_ref.csv\
-     --target_dir "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --align_type delta --video_path "$SMARTPHONE_VIDEO_PATH"
-  fi
-fi
-
 # IMU data extraction
 echo "IMU data extraction starting.."
 python2 extract.py --output "$DATA_DIR"\
@@ -120,17 +103,38 @@ do
   done
 done
 
+# Smartphone data extraction
+if [ -z "$2" ]; then
+    >&2 echo "No smartphone video argument supplied"
+else
+  # Create target directory, extract video frames
+  rm -rf "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR"
+  mkdir "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR"
+  # Check if video exists
+  if [ ! -f "$SMARTPHONE_VIDEO_PATH" ]; then
+    >&2 echo "Provided smartphone video doesn't exist"
+  else
+    ffmpeg -i "$SMARTPHONE_VIDEO_PATH" -vsync 0 "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR/frame-%d.png"
+    python2 extract.py --output "$DATA_DIR"\
+     --type sm_frames --path "$BAG" --frame_dir "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --vid "$SMARTPHONE_VIDEO_PATH"
+
+     # Sm data alignment
+     python2 align.py --time_ref_file "./$DATA_DIR"/_mcu_s10_ts/time_ref.csv\
+      --target_dir "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --align_type delta
+  fi
+fi
+
 # Azure data alignment
 echo "Azure data alignment starting.."
 if [ ${#AZURE_ALIGN_TOPICS[@]} -eq 0 ]; then
-  echo "No azure topics provided"
+  >&2 echo "No azure topics provided"
 else
   for topic in "${AZURE_ALIGN_TOPICS[@]}"
   do
     echo ./"$DATA_DIR"/_mcu_cameras_ts/time_ref.csv
     echo "./$DATA_DIR/${topic//\//_}"
-    python2 align.py --time_ref_file ./"$DATA_DIR"/_mcu_cameras_ts/time_ref.csv\
-      --target_dir "./$DATA_DIR/${topic//\//_}" --align_type ref  --ref_seq 12
+    python2 align.py --time_ref_file ./"$DATA_DIR"/_depth_to_mcu_offset/time_ref.csv\
+      --target_dir "./$DATA_DIR/${topic//\//_}" --align_type delta
   done
 fi
 

@@ -21,6 +21,7 @@ IMU_TYPE='imu'
 TIME_REF_TYPE='time_ref'
 DEPTH_IMG_TYPE='depth_img'
 CAMERA_INFO_TYPE='cam_info'
+SM_TYPE='sm_frames'
 
 
 def main():
@@ -38,12 +39,14 @@ def main():
     )
     parser.add_argument(
         '--type',
-        choices=[IMG_TYPE, IMU_TYPE, TIME_REF_TYPE, DEPTH_IMG_TYPE, CAMERA_INFO_TYPE],
+        choices=[IMG_TYPE, IMU_TYPE, TIME_REF_TYPE, DEPTH_IMG_TYPE, CAMERA_INFO_TYPE, SM_TYPE],
         help='<Required> Message type for extraction',
         required=True
     )
-    parser.add_argument('--topics', nargs='+', help='<Required> List of topics', required=True)
+    parser.add_argument('--topics', nargs='+', help='<Optional> List of topics')
     parser.add_argument('--temp', nargs='+', help='<Optional> IMU temperature topics')
+    parser.add_argument('--frame_dir', help='<Optional> Smartphone frames directory')
+    parser.add_argument('--vid', help='<Optional> Smartphone video path')
 
     args = parser.parse_args()
     path = args.path.name
@@ -70,6 +73,10 @@ def main():
     elif args.type == CAMERA_INFO_TYPE:
         print("Extracting camera intrinsic data..")
         utils.extract_camera_info(topics)
+    elif args.type == SM_TYPE:
+        # TODO: args assertion for dir and vid
+        print("Extracting smartphone video frame data..")
+        utils.extract_frame_data(args.frame_dir, args.vid)
     bag.close()
 
 

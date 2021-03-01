@@ -18,8 +18,10 @@ import os
 import numpy as np
 from cv_bridge import CvBridge
 import csv
+import re
 import yaml
 from yaml import Loader, Dumper
+from src.alignment_utils import ALLOWED_EXTENSIONS
 from yaml.representer import SafeRepresenter
 
 
@@ -54,8 +56,8 @@ class RosbagUtils:
         for i, (topic, msg, t) in enumerate(self.bag.read_messages(topics=topics)):
             cv_img = bridge.imgmsg_to_cv2(msg, "passthrough")
 
-            if i == 0 and msg.header.seq != 0:
-                raise RuntimeError("Messages in .bag file didn't start from seq 0")
+            # if i == 0 and msg.header.seq != 0:
+            #     raise RuntimeError("Messages in .bag file didn't start from seq 0")
 
             if use_depth:
                 # ROS writes 32F images, so conversion is needed
@@ -139,4 +141,32 @@ class RosbagUtils:
                 Dumper.add_representer(tuple, SafeRepresenter.represent_list)
                 yaml.dump(
                     cam_info, cam_info_file, sort_keys=False, default_flow_style=False, Dumper=Dumper
+                )
+
+
+    def extract_frame_data(self, target_dir, video_path):
+        # load frame timestamps csv, rename frames according to it
+        video_root, video_filename = os.path.split(video_path)
+        video_name, _ = os.path.splitext(video_filename)
+        video_date = re.sub(r"VID_((\d|_)*)", r"\1", video_name)
+
+        with open(os.path.join(video_root, video_date, video_name + "_timestamps.csv")) as frame_timestamps_file:
+            filename_timestamps = map(
+                lambda x: (x.strip('\n'), int(x)), frame_timestamps_file.readlines()
+            )
+            l = len(list(filter(
+                lambda x: os.path.splitext(x)[1] in ALLOWED_EXTENSIONS,
+                os.listdir(target_dir)
+            )))
+            # frame number assertion
+            assert len(filename_timestamps) == len(list(filter(
+                lambda x: os.path.splitext(x)[1] in ALLOWED_EXTENSIONS,
+                os.listdir(target_dir)
+            ))), "Frame number in video %d and timestamp files %d did not match" % (l, len(filename_timestamps))
+
+            _, extension = os.path.splitext(os.listdir(target_dir)[0])
+            for i, timestamp in enumerate(filename_timestamps):
+                os.rename(
+                    os.path.join(target_dir, "frame-%d.png" % (i + 1)),
+                    os.path.join(target_dir, timestamp[0] + extension)
                 )
