@@ -60,31 +60,39 @@ def align_by_ref(time_ref, target_dir, ref_seq):
 
 def align_by_delta(time_ref, target_dir, video_path):
     # load frame timestamps csv, rename frames according to it
-    video_root, video_filename = os.path.split(video_path)
-    video_name, _ = os.path.splitext(video_filename)
-    video_date = re.sub(r"VID_((\d|_)*)", r"\1", video_name)
-
-    with open(os.path.join(video_root, video_date, video_name + "_timestamps.csv")) as frame_timestamps_file:
-        filename_timestamps = map(
-            lambda x: (x.strip('\n'), int(x)), frame_timestamps_file.readlines()
+    # video_root, video_filename = os.path.split(video_path)
+    # video_name, _ = os.path.splitext(video_filename)
+    # video_date = re.sub(r"VID_((\d|_)*)", r"\1", video_name)
+    #
+    # with open(os.path.join(video_root, video_date, video_name + "_timestamps.csv")) as frame_timestamps_file:
+    #     filename_timestamps = map(
+    #         lambda x: (x.strip('\n'), int(x)), frame_timestamps_file.readlines()
+    #     )
+    filename_timestamps = map(
+        lambda x: (os.path.splitext(x)[0], int(os.path.splitext(x)[0])),
+        filter(
+            lambda x: os.path.splitext(x)[1] in ALLOWED_EXTENSIONS,
+            os.listdir(target_dir)
         )
-        _, extension = os.path.splitext(os.listdir(target_dir)[0])
-        for i, timestamp in enumerate(filename_timestamps):
-            os.rename(
-                os.path.join(target_dir, "frame-%d.png" % (i + 1)),
-                os.path.join(target_dir, timestamp[0] + extension)
-            )
-        with open(time_ref, 'r') as time_ref_file:
-            values = time_ref_file.readline().split(',')
-            seq = int(values[0])
-            ref_timestamp = int(values[1])
-            timestamp = int(values[2])
-            # obtain delta with the info from time reference file
-            delta = ref_timestamp - timestamp
+    )
+    filename_timestamps.sort(key=lambda tup: tup[1])
+    _, extension = os.path.splitext(os.listdir(target_dir)[0])
+    # for i, timestamp in enumerate(filename_timestamps):
+    #     os.rename(
+    #         os.path.join(target_dir, "frame-%d.png" % (i + 1)),
+    #         os.path.join(target_dir, timestamp[0] + extension)
+    #     )
+    with open(time_ref, 'r') as time_ref_file:
+        values = time_ref_file.readline().split(',')
+        seq = int(values[0])
+        ref_timestamp = int(values[1])
+        timestamp = int(values[2])
+        # obtain delta with the info from time reference file
+        delta = ref_timestamp - timestamp
 
-            # align with delta
-            print("Aligning with sequence %d, timestamps %d - %d" % (seq, timestamp, ref_timestamp))
-            _align(target_dir, filename_timestamps, extension, delta)
+        # align with delta
+        print("Aligning with sequence %d, timestamps %d - %d" % (seq, timestamp, ref_timestamp))
+        _align(target_dir, filename_timestamps, extension, delta)
 
 
 def _align(target_dir, filename_timestamps, extension, delta):
