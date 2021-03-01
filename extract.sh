@@ -118,9 +118,9 @@ else
     python2 extract.py --output "$DATA_DIR"\
      --type sm_frames --path "$BAG" --frame_dir "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --vid "$SMARTPHONE_VIDEO_PATH"
 
-     # Alignment
+     # Sm data alignment
      python2 align.py --time_ref_file "./$DATA_DIR"/_mcu_s10_ts/time_ref.csv\
-      --target_dir "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --align_type delta --video_path "$SMARTPHONE_VIDEO_PATH"
+      --target_dir "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --align_type delta
   fi
 fi
 
@@ -133,8 +133,8 @@ else
   do
     echo ./"$DATA_DIR"/_mcu_cameras_ts/time_ref.csv
     echo "./$DATA_DIR/${topic//\//_}"
-    python2 align.py --time_ref_file ./"$DATA_DIR"/_mcu_cameras_ts/time_ref.csv\
-      --target_dir "./$DATA_DIR/${topic//\//_}" --align_type ref  --ref_seq 12
+    python2 align.py --time_ref_file ./"$DATA_DIR"/_depth_to_mcu_offset/time_ref.csv\
+      --target_dir "./$DATA_DIR/${topic//\//_}" --align_type delta
   done
 fi
 

@@ -56,8 +56,8 @@ class RosbagUtils:
         for i, (topic, msg, t) in enumerate(self.bag.read_messages(topics=topics)):
             cv_img = bridge.imgmsg_to_cv2(msg, "passthrough")
 
-            if i == 0 and msg.header.seq != 0:
-                raise RuntimeError("Messages in .bag file didn't start from seq 0")
+            # if i == 0 and msg.header.seq != 0:
+            #     raise RuntimeError("Messages in .bag file didn't start from seq 0")
 
             if use_depth:
                 # ROS writes 32F images, so conversion is needed

@@ -58,7 +58,7 @@ def align_by_ref(time_ref, target_dir, ref_seq):
         _align(target_dir, filename_timestamps, extension, delta)
 
 
-def align_by_delta(time_ref, target_dir, video_path):
+def align_by_delta(time_ref, target_dir):
     # load frame timestamps csv, rename frames according to it
     # video_root, video_filename = os.path.split(video_path)
     # video_name, _ = os.path.splitext(video_filename)
