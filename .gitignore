@@ -144,3 +144,5 @@ dmypy.json
 *.tif
 
 *.mp4
+
+*.npy

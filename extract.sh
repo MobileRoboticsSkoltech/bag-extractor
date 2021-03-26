@@ -26,12 +26,26 @@ source /opt/ros/melodic/setup.bash
 BAG=$1
 SMARTPHONE_VIDEO_PATH=$2
 
+
 if [ ! -f "$BAG" ]; then
   echo "Provided .bag file doesn't exist"
   exit
 fi
 
+SEQUENCE_TIMESTAMPS=()
 DATA_DIR="output/$(basename "$BAG" .bag)"
+
+if [ "$3" == "--split" ]; then
+  echo "Should split the file by sequences"
+  python2 extract.py --output "$DATA_DIR"\
+  --type time_ref --path "$BAG" --topics "$SEQUENCE_TOPIC" 
+  
+  while IFS=, read -r seq timestamp col3
+  do
+      echo "Sequence: $seq | starts with $timestamp"
+      SEQUENCE_TIMESTAMPS=("${SEQUENCE_TIMESTAMPS[@]}" $timestamp)
+  done < "./$DATA_DIR"/_sequences_ts/time_ref.csv
+fi
 
 ## Create a subdirectory for extraction
 rm -rf "$DATA_DIR"
@@ -136,6 +150,22 @@ else
     python2 align.py --time_ref_file ./"$DATA_DIR"/_depth_to_mcu_offset/time_ref.csv\
       --target_dir "./$DATA_DIR/${topic//\//_}" --align_type delta
   done
+fi
+
+# Split to sequences
+if [ ${#SEQUENCE_TIMESTAMPS[@]} -eq 0 ]; then
+  echo "No sequence timestamps were found, skipping split"
+else
+  ALL_TOPICS=( "${PCD_TOPICS[@]}" "${CAM_INFO_TOPICS[@]}" "${IMG_TOPICS[@]}"\
+   "${IMU_TOPICS[@]}" "${TEMP_TOPICS[@]}" "${DEPTH_IMG_TOPICS[@]}" )
+  for topic in "${ALL_TOPICS[@]}"
+    do
+      if [ ! -d "./$DATA_DIR/${topic//\//_}" ]; then
+        >&2 echo "Skipping topic directory which doesn't exist"
+      else
+        python2 split.py --target_dir "./$DATA_DIR/${topic//\//_}" --data_dir "./$DATA_DIR" --timestamps "${SEQUENCE_TIMESTAMPS[@]}"
+      fi
+    done
 fi
 
 # Kill roscore running in background
