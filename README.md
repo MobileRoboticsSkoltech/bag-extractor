@@ -32,8 +32,9 @@ On the **first usage**, run ```./setup.sh``` to create virtual environment and i
 
 1. Setup **topic names** for extraction in ```./extract.conf``` file
 2. **Run** ```./extract.sh <PATH_TO_BAG> (optional)<PATH_TO_VIDEO>``` with **path to your .bag file** 
-    and **path to smartphone video** from OpenCamera Sensors as arguments
-     *(note: directory with meta information about video, e.g. ```20210119_233624```, should be located in the same path as the video)*.
+    and **path to smartphone video** from OpenCamera Sensors as arguments. *(note: directory with meta information about video, e.g. ```20210119_233624```, should be located in the same path as the video)*.
+    - *Optional:* use ```--split``` as a third argument to get output for multiple sequences in subdirectories ```seq_0```, ... ,```seq_n``` 
+     
 3. **Data is saved** to the subdirectories of ```./output/<YOUR_BAG_NAME>``` directories (subdirectory name = topic name with ```/``` replaced with ```_```):
 
 | File                            | Description |
