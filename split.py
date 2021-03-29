@@ -55,7 +55,7 @@ def split(target_dir, data_dir, timestamps):
         print("Copying sequence %d..." % i)
         new_dir = os.path.join(data_dir, "seq_%d" % i, os.path.split(target_dir)[-1])
         make_dir_if_needed(new_dir)
-        for filename, _ in filename_timestamps:
+        for filename, _ in seq:
             copyfile(os.path.join(target_dir, filename), os.path.join(new_dir, filename))
 
 
