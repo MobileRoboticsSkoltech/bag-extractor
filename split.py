@@ -48,8 +48,10 @@ def split(target_dir, data_dir, timestamps):
         ))
     filename_timestamps.sort(key=lambda tup: tup[1])
     sequences = []
+    prev = 0
     for timestamp in timestamps:
-        sequences.append(list(filter(lambda x: x[1] < timestamp, filename_timestamps)))
+        sequences.append(list(filter(lambda x: x[1] < timestamp and x[1] >= prev, filename_timestamps)))
+        prev = timestamp
     sequences.append(list(filter(lambda x: x[1] >= timestamp, filename_timestamps)))
     for i, seq in enumerate(sequences):
         print("Copying sequence %d..." % i)
