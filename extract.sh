@@ -40,18 +40,15 @@ DATA_DIR="output/$(basename "$BAG" .bag)"
 rm -rf "$DATA_DIR"
 mkdir -p "$DATA_DIR"
 
-if [ "$3" == "--split" ]; then
-  echo "Should split the file by sequences"
-  python2 extract.py --output "$DATA_DIR"\
-  --type time_ref --path "$BAG" --topics "$SEQUENCE_TOPIC" 
-  
-  while IFS=, read -r seq timestamp col3
-  do
-      echo "Sequence: $seq | starts with $timestamp"
-      SEQUENCE_TIMESTAMPS=("${SEQUENCE_TIMESTAMPS[@]}" $timestamp)
-  done < "./$DATA_DIR"/_sequences_ts/time_ref.csv
-fi
 
+python2 extract.py --output "$DATA_DIR"\
+--type time_ref --path "$BAG" --topics "$SEQUENCE_TOPIC" 
+
+while IFS=, read -r seq timestamp col3
+do
+    echo "Sequence: $seq | starts with $timestamp"
+    SEQUENCE_TIMESTAMPS=("${SEQUENCE_TIMESTAMPS[@]}" "$timestamp")
+done < "./$DATA_DIR"/_sequences_ts/time_ref.csv
 
 # Time reference data extraction
 echo "Time reference data extraction starting.."
@@ -130,13 +127,14 @@ else
   if [ ! -f "$SMARTPHONE_VIDEO_PATH" ]; then
     >&2 echo "Provided smartphone video doesn't exist"
   else
-    ffmpeg -i "$SMARTPHONE_VIDEO_PATH" -vsync 0 "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR/frame-%d.png"
-    python2 extract.py --output "$DATA_DIR"\
-     --type sm_frames --path "$BAG" --frame_dir "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --vid "$SMARTPHONE_VIDEO_PATH"
+    # ffmpeg -i "$SMARTPHONE_VIDEO_PATH" -vsync 0 "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR/frame-%d.png"
 
-     # Sm data alignment
-     python2 align.py --time_ref_file "./$DATA_DIR"/_mcu_s10_ts/time_ref.csv\
-      --target_dir "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --align_type delta
+    # Sm data alignment
+    python2 align.py --time_ref_file "./$DATA_DIR"/_mcu_s10_ts/time_ref.csv\
+      --target_dir "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --align_type csv  --vid "$SMARTPHONE_VIDEO_PATH"
+    cp "$SMARTPHONE_VIDEO_PATH" "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR/$(basename "$SMARTPHONE_VIDEO_PATH")"
+    # python2 extract.py --output "$DATA_DIR"\
+    #  --type sm_frames --path "$BAG" --frame_dir "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --vid "$SMARTPHONE_VIDEO_PATH"
   fi
 fi
 
@@ -155,40 +153,43 @@ else
 fi
 
 # Split to sequences
-if [ ${#SEQUENCE_TIMESTAMPS[@]} -eq 0 ]; then
-  echo "No sequence timestamps were found, skipping split"
-else
-  ALL_TOPICS=( "${PCD_TOPICS[@]}" "${IMG_TOPICS[@]}"\
-   "${IMU_TOPICS[@]}" "${TEMP_TOPICS[@]}" "${DEPTH_IMG_TOPICS[@]}" )
-  for topic in "${ALL_TOPICS[@]}"
-    do
-      if [ ! -d "./$DATA_DIR/${topic//\//_}" ]; then
-        >&2 echo "Skipping topic directory which doesn't exist"
-      else
-        python2 split.py --target_dir "./$DATA_DIR/${topic//\//_}" --data_dir "./$DATA_DIR" --timestamps "${SEQUENCE_TIMESTAMPS[@]}"
-      fi
-    done
-
-    python2 split.py --target_dir "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --data_dir "./$DATA_DIR" --timestamps "${SEQUENCE_TIMESTAMPS[@]}"
-
-    for cam_info in "${CAM_INFO_TOPICS[@]}"
+if [ "$3" == "--split" ]; then
+  echo "Should split the file by sequences"
+  if [ ${#SEQUENCE_TIMESTAMPS[@]} -eq 0 ]; then
+    echo "No sequence timestamps were found, skipping split"
+  else
+    ALL_TOPICS=( "${PCD_TOPICS[@]}" "${IMG_TOPICS[@]}"\
+    "${IMU_TOPICS[@]}" "${TEMP_TOPICS[@]}" "${DEPTH_IMG_TOPICS[@]}" )
+    for topic in "${ALL_TOPICS[@]}"
       do
         if [ ! -d "./$DATA_DIR/${topic//\//_}" ]; then
           >&2 echo "Skipping topic directory which doesn't exist"
         else
-          ind=0
-          for seq in  ${SEQUENCE_TIMESTAMPS[@]}
-          do
+          python2 split.py --target_dir "./$DATA_DIR/${topic//\//_}" --data_dir "./$DATA_DIR" --timestamps "${SEQUENCE_TIMESTAMPS[@]}"
+        fi
+      done
+
+      python2 split.py --target_dir "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --data_dir "./$DATA_DIR" --timestamps "${SEQUENCE_TIMESTAMPS[@]}"
+
+      for cam_info in "${CAM_INFO_TOPICS[@]}"
+        do
+          if [ ! -d "./$DATA_DIR/${topic//\//_}" ]; then
+            >&2 echo "Skipping topic directory which doesn't exist"
+          else
+            ind=0
+            for seq in  "${SEQUENCE_TIMESTAMPS[@]}"
+            do
+              rm -rf "./$DATA_DIR/seq_$ind/${cam_info//\//_}"
+              mkdir "./$DATA_DIR/seq_$ind/${cam_info//\//_}" &&
+              cp "./$DATA_DIR/${cam_info//\//_}/camera_info.yaml" "./$DATA_DIR/seq_$ind/${cam_info//\//_}/camera_info.yaml"
+              ind=$((ind+1))
+            done
             rm -rf "./$DATA_DIR/seq_$ind/${cam_info//\//_}"
             mkdir "./$DATA_DIR/seq_$ind/${cam_info//\//_}" &&
             cp "./$DATA_DIR/${cam_info//\//_}/camera_info.yaml" "./$DATA_DIR/seq_$ind/${cam_info//\//_}/camera_info.yaml"
-            ind=$((ind+1))
-          done
-          rm -rf "./$DATA_DIR/seq_$ind/${cam_info//\//_}"
-          mkdir "./$DATA_DIR/seq_$ind/${cam_info//\//_}" &&
-          cp "./$DATA_DIR/${cam_info//\//_}/camera_info.yaml" "./$DATA_DIR/seq_$ind/${cam_info//\//_}/camera_info.yaml"
-        fi
-      done
+          fi
+        done
+  fi
 fi
 
 # Kill roscore running in background

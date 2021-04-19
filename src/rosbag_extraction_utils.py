@@ -142,31 +142,3 @@ class RosbagUtils:
                 yaml.dump(
                     cam_info, cam_info_file, sort_keys=False, default_flow_style=False, Dumper=Dumper
                 )
-
-
-    def extract_frame_data(self, target_dir, video_path):
-        # load frame timestamps csv, rename frames according to it
-        video_root, video_filename = os.path.split(video_path)
-        video_name, _ = os.path.splitext(video_filename)
-        video_date = re.sub(r"VID_((\d|_)*)", r"\1", video_name)
-
-        with open(os.path.join(video_root, video_date, video_name + "_timestamps.csv")) as frame_timestamps_file:
-            filename_timestamps = map(
-                lambda x: (x.strip('\n'), int(x)), frame_timestamps_file.readlines()
-            )
-            l = len(list(filter(
-                lambda x: os.path.splitext(x)[1] in ALLOWED_EXTENSIONS,
-                os.listdir(target_dir)
-            )))
-            # frame number assertion
-            assert len(filename_timestamps) == len(list(filter(
-                lambda x: os.path.splitext(x)[1] in ALLOWED_EXTENSIONS,
-                os.listdir(target_dir)
-            ))), "Frame number in video %d and timestamp files %d did not match" % (l, len(filename_timestamps))
-
-            _, extension = os.path.splitext(os.listdir(target_dir)[0])
-            for i, timestamp in enumerate(filename_timestamps):
-                os.rename(
-                    os.path.join(target_dir, "frame-%d.png" % (i + 1)),
-                    os.path.join(target_dir, timestamp[0] + extension)
-                )
