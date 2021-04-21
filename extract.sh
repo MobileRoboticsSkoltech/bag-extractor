@@ -132,6 +132,11 @@ else
     # Sm data alignment
     python2 align.py --time_ref_file "./$DATA_DIR"/_mcu_s10_ts/time_ref.csv\
       --target_dir "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --align_type csv  --vid "$SMARTPHONE_VIDEO_PATH"
+
+    python2 align.py --time_ref_file "./$DATA_DIR"/_mcu_s10_ts/time_ref.csv\
+      --target_dir "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --align_type flash  --vid "$SMARTPHONE_VIDEO_PATH"
+ 
+
     cp "$SMARTPHONE_VIDEO_PATH" "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR/$(basename "$SMARTPHONE_VIDEO_PATH")"
     # python2 extract.py --output "$DATA_DIR"\
     #  --type sm_frames --path "$BAG" --frame_dir "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --vid "$SMARTPHONE_VIDEO_PATH"

@@ -97,28 +97,32 @@ def align_by_delta(time_ref, target_dir):
         _align(target_dir, filename_timestamps, extension, delta)
 
 
-def align_csv(time_ref, target_dir, video_path):
+def align_csv(time_ref, target_dir, video_path, suffix):
     # load frame timestamps csv, rename frames according to it
     video_root, video_filename = os.path.split(video_path)
     video_name, _ = os.path.splitext(video_filename)
     video_date = re.sub(r"VID_((\d|_)*)", r"\1", video_name)
 
-    with open(os.path.join(video_root, video_date, video_name + "_timestamps.csv")) as frame_timestamps_file,\
-            open(time_ref, 'r') as time_ref_file,\
-            open(os.path.join(target_dir, video_name + "_aligned_timestamps.csv"), 'w+') as aligned_file:
-        filename_timestamps = map(
-            lambda x: (x.strip('\n'), int(
-                x)), frame_timestamps_file.readlines()
-        )
+    timestamps_path = os.path.join(video_root, video_date, video_name + "_%s.csv" % suffix)
+    if (os.path.isfile(timestamps_path)):
+        with open(timestamps_path) as frame_timestamps_file,\
+                open(time_ref, 'r') as time_ref_file,\
+                open(os.path.join(target_dir, video_name + "_aligned_%s.csv" % suffix), 'w+') as aligned_file:
+            filename_timestamps = map(
+                lambda x: (x.strip('\n'), int(
+                    x)), frame_timestamps_file.readlines()
+            )
 
-        values = time_ref_file.readline().split(',')
-        ref_timestamp = int(values[1])
-        timestamp = int(values[2])
-        # obtain delta with the info from time reference file
-        delta = ref_timestamp - timestamp
-        for _, stamp in filename_timestamps:
-            aligned_file.write('%d' % (stamp + delta))
-            aligned_file.write('\n')
+            values = time_ref_file.readline().split(',')
+            ref_timestamp = int(values[1])
+            timestamp = int(values[2])
+            # obtain delta with the info from time reference file
+            delta = ref_timestamp - timestamp
+            for _, stamp in filename_timestamps:
+                aligned_file.write('%d' % (stamp + delta))
+                aligned_file.write('\n')
+    else:
+        print("No %s file in smartphone directory!" % timestamps_path)
 
 
 def _align(target_dir, filename_timestamps, extension, delta):
