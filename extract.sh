@@ -26,16 +26,29 @@ source /opt/ros/melodic/setup.bash
 BAG=$1
 SMARTPHONE_VIDEO_PATH=$2
 
+
 if [ ! -f "$BAG" ]; then
   echo "Provided .bag file doesn't exist"
   exit
 fi
 
+SEQUENCE_TIMESTAMPS=()
 DATA_DIR="output/$(basename "$BAG" .bag)"
+
 
 ## Create a subdirectory for extraction
 rm -rf "$DATA_DIR"
 mkdir -p "$DATA_DIR"
+
+
+python2 extract.py --output "$DATA_DIR"\
+  --type time_ref --path "$BAG" --topics "$SEQUENCE_TOPIC" 
+
+# while IFS=, read -r seq timestamp col3
+# do
+#     echo "Sequence: $seq | starts with $timestamp"
+#     SEQUENCE_TIMESTAMPS=("${SEQUENCE_TIMESTAMPS[@]}" "$timestamp")
+# done < "./$DATA_DIR"/_sequences_ts/time_ref.csv
 
 # Time reference data extraction
 echo "Time reference data extraction starting.."
@@ -114,13 +127,19 @@ else
   if [ ! -f "$SMARTPHONE_VIDEO_PATH" ]; then
     >&2 echo "Provided smartphone video doesn't exist"
   else
-    ffmpeg -i "$SMARTPHONE_VIDEO_PATH" -vsync 0 "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR/frame-%d.png"
-    python2 extract.py --output "$DATA_DIR"\
-     --type sm_frames --path "$BAG" --frame_dir "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --vid "$SMARTPHONE_VIDEO_PATH"
+    # ffmpeg -i "$SMARTPHONE_VIDEO_PATH" -vsync 0 "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR/frame-%d.png"
 
-     # Sm data alignment
-     python2 align.py --time_ref_file "./$DATA_DIR"/_mcu_s10_ts/time_ref.csv\
-      --target_dir "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --align_type delta
+    # Sm data alignment
+    python2 align.py --time_ref_file "./$DATA_DIR"/_mcu_s10_ts/time_ref.csv\
+      --target_dir "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --align_type csv  --vid "$SMARTPHONE_VIDEO_PATH"
+
+    python2 align.py --time_ref_file "./$DATA_DIR"/_mcu_s10_ts/time_ref.csv\
+      --target_dir "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --align_type flash  --vid "$SMARTPHONE_VIDEO_PATH"
+ 
+
+    cp "$SMARTPHONE_VIDEO_PATH" "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR/$(basename "$SMARTPHONE_VIDEO_PATH")"
+    # python2 extract.py --output "$DATA_DIR"\
+    #  --type sm_frames --path "$BAG" --frame_dir "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --vid "$SMARTPHONE_VIDEO_PATH"
   fi
 fi
 

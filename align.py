@@ -13,10 +13,15 @@
 # limitations under the License.
 
 import argparse
-from src.alignment_utils import align_by_ref, align_by_delta
+from src.alignment_utils import align_by_ref, align_by_delta, align_csv
 
 ALIGN_BY_REF = 'ref'
 ALIGN_BY_DELTA = 'delta'
+ALIGN_CSV = 'csv'
+ALIGN_FLASH = 'flash'
+
+FLASH_SUFFIX = 'flash'
+FRAME_SUFFIX = 'timestamps'
 
 
 def main():
@@ -34,7 +39,7 @@ def main():
     )
     parser.add_argument(
         "--align_type",
-        choices=[ALIGN_BY_DELTA, ALIGN_BY_REF],
+        choices=[ALIGN_BY_DELTA, ALIGN_BY_REF, ALIGN_CSV, ALIGN_FLASH],
         help='<Required> Alignment type',
         required=True
     )
@@ -43,6 +48,11 @@ def main():
         type=int,
         required=False
     )
+    parser.add_argument(
+        "--vid",
+        required=False
+    )
+
 
     args = parser.parse_args()
     time_ref_file = args.time_ref_file.name
@@ -50,8 +60,12 @@ def main():
     if args.align_type == ALIGN_BY_REF:
         ref_seq = args.ref_seq
         align_by_ref(time_ref_file, target_dir, ref_seq)
-    else:
+    elif args.align_type == ALIGN_BY_DELTA:
         align_by_delta(time_ref_file, target_dir)
+    elif args.align_type == ALIGN_CSV:
+        align_csv(time_ref_file, target_dir, args.vid, FRAME_SUFFIX)
+    elif args.align_type == ALIGN_FLASH:
+        align_csv(time_ref_file, target_dir, args.vid, FLASH_SUFFIX)
 
 
 if __name__ == '__main__':
