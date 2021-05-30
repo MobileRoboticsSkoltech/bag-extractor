@@ -135,7 +135,12 @@ else
 
     python2 align.py --time_ref_file "./$DATA_DIR"/_mcu_s10_ts/time_ref.csv\
       --target_dir "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --align_type flash  --vid "$SMARTPHONE_VIDEO_PATH"
- 
+    
+    python2 align.py --time_ref_file "./$DATA_DIR"/_mcu_s10_ts/time_ref.csv\
+      --target_dir "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --align_type accel  --vid "$SMARTPHONE_VIDEO_PATH"
+
+    python2 align.py --time_ref_file "./$DATA_DIR"/_mcu_s10_ts/time_ref.csv\
+      --target_dir "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --align_type gyro  --vid "$SMARTPHONE_VIDEO_PATH"
 
     cp "$SMARTPHONE_VIDEO_PATH" "./$DATA_DIR/$SMARTPHONE_VIDEO_DIR/$(basename "$SMARTPHONE_VIDEO_PATH")"
     # python2 extract.py --output "$DATA_DIR"\

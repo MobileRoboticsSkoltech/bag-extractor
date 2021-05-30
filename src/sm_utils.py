@@ -12,17 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import cv2
 import os
-
-import numpy as np
-from cv_bridge import CvBridge
-import csv
-import re
-import yaml
-from yaml import Loader, Dumper
-from src.alignment_utils import ALLOWED_EXTENSIONS
-from yaml.representer import SafeRepresenter
+ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.npy', '.png', '.pcd']
 
 
 def extract_frame_data(target_dir, video_path):

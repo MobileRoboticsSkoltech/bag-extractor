@@ -17,14 +17,14 @@ set -eo pipefail
 
 # Import configuration values
 source extract.conf
-# Activate virtual environment
-source venv/bin/activate
-source /opt/ros/melodic/setup.bash
 
-DATA_DIR=$1
+DATA_DIR_=$1
+DATA_DIR=$(echo "$DATA_DIR_" | sed 's:/*$::')
+echo "$DATA_DIR_" "$DATA_DIR/"
+
 SMARTPHONE_VIDEO_DIR="smartphone_video_frames"
 
-video_files=("$DATA_DIR$SMARTPHONE_VIDEO_DIR"/*.mp4)
+video_files=("$DATA_DIR/$SMARTPHONE_VIDEO_DIR"/*.mp4)
 echo "Found video file ${video_files[0]}"
 SMARTPHONE_VIDEO_PATH="${video_files[0]}"
 
@@ -32,16 +32,16 @@ SMARTPHONE_VIDEO_PATH="${video_files[0]}"
 if [ ! -f "$SMARTPHONE_VIDEO_PATH" ]; then
     >&2 echo "Smartphone video file doesn't exist"
 else
-    ffmpeg -i "$SMARTPHONE_VIDEO_PATH" -vsync 0 "$DATA_DIR$SMARTPHONE_VIDEO_DIR/frame-%d.png"
-    python2 extract.py --output "$DATA_DIR"\
-     --type sm_frames --frame_dir "$DATA_DIR$SMARTPHONE_VIDEO_DIR" --vid "$SMARTPHONE_VIDEO_PATH"
+    ffmpeg -i "$SMARTPHONE_VIDEO_PATH" -vsync 0 "$DATA_DIR/$SMARTPHONE_VIDEO_DIR/frame-%d.png"
+    python2 local_extract.py --output "$DATA_DIR"\
+     --frame_dir "$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --vid "$SMARTPHONE_VIDEO_PATH"
 fi
 
 while IFS=, read -r seq timestamp col3
 do
     echo "Sequence: $seq | starts with $timestamp"
     SEQUENCE_TIMESTAMPS=("${SEQUENCE_TIMESTAMPS[@]}" "$timestamp")
-done < "$DATA_DIR"_sequences_ts/time_ref.csv
+done < "$DATA_DIR"/_sequences_ts/time_ref.csv
 
 
 # Split to sequences
@@ -54,31 +54,31 @@ if [ "$2" == "--split" ]; then
     "${IMU_TOPICS[@]}" "${TEMP_TOPICS[@]}" "${DEPTH_IMG_TOPICS[@]}" )
     for topic in "${ALL_TOPICS[@]}" 
       do
-        if [ ! -d "$DATA_DIR${topic//\//_}" ]; then
+        if [ ! -d "$DATA_DIR/${topic//\//_}" ]; then
           >&2 echo "Skipping topic directory which doesn't exist"
         else
-          python2 split.py --target_dir "$DATA_DIR${topic//\//_}" --data_dir "$DATA_DIR" --timestamps "${SEQUENCE_TIMESTAMPS[@]}"
+          python2 split.py --target_dir "$DATA_DIR/${topic//\//_}" --data_dir "$DATA_DIR" --timestamps "${SEQUENCE_TIMESTAMPS[@]}"
         fi
       done
 
-      python2 split.py --target_dir "$DATA_DIR$SMARTPHONE_VIDEO_DIR" --data_dir "$DATA_DIR" --timestamps "${SEQUENCE_TIMESTAMPS[@]}"
+      python2 split.py --target_dir "$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --data_dir "$DATA_DIR" --timestamps "${SEQUENCE_TIMESTAMPS[@]}"
 
       for cam_info in "${CAM_INFO_TOPICS[@]}"
         do
-          if [ ! -d "$DATA_DIR${topic//\//_}" ]; then
+          if [ ! -d "$DATA_DIR/${topic//\//_}" ]; then
             >&2 echo "Skipping topic directory which doesn't exist"
           else
             ind=0
             for seq in  "${SEQUENCE_TIMESTAMPS[@]}"
             do
-              rm -rf "$DATA_DIR""seq_$ind/${cam_info//\//_}"
-              mkdir "$DATA_DIR""seq_$ind/${cam_info//\//_}" &&
-              cp "$DATA_DIR${cam_info//\//_}/camera_info.yaml" "$DATA_DIR""seq_$ind/${cam_info//\//_}/camera_info.yaml"
+              rm -rf "$DATA_DIR/seq_$ind/${cam_info//\//_}"
+              mkdir "$DATA_DIR/seq_$ind/${cam_info//\//_}" &&
+              cp "$DATA_DIR/${cam_info//\//_}/camera_info.yaml" "$DATA_DIR/seq_$ind/${cam_info//\//_}/camera_info.yaml"
               ind=$((ind+1))
             done
-            rm -rf "$DATA_DIR""seq_$ind/${cam_info//\//_}"
-            mkdir "$DATA_DIR""seq_$ind/${cam_info//\//_}" &&
-            cp "$DATA_DIR${cam_info//\//_}/camera_info.yaml" "$DATA_DIR""seq_$ind/${cam_info//\//_}/camera_info.yaml"
+            rm -rf "$DATA_DIR/seq_$ind/${cam_info//\//_}"
+            mkdir "$DATA_DIR/seq_$ind/${cam_info//\//_}" &&
+            cp "$DATA_DIR/${cam_info//\//_}/camera_info.yaml" "$DATA_DIR/seq_$ind/${cam_info//\//_}/camera_info.yaml"
           fi
         done
   fi
