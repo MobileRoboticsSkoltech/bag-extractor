@@ -13,15 +13,20 @@
 # limitations under the License.
 
 import argparse
-from src.alignment_utils import align_by_ref, align_by_delta, align_csv
+from src.alignment_utils import align_by_ref, align_by_delta, align_csv, align_imu
 
 ALIGN_BY_REF = 'ref'
 ALIGN_BY_DELTA = 'delta'
 ALIGN_CSV = 'csv'
 ALIGN_FLASH = 'flash'
+ALIGN_ACCEL = 'accel'
+ALIGN_GYRO = 'gyro'
 
-FLASH_SUFFIX = 'flash'
-FRAME_SUFFIX = 'timestamps'
+FLASH_SUFFIX = '_flash'
+ACCEL_SUFFIX = 'accel'
+GYRO_SUFFIX = 'gyro'
+
+FRAME_SUFFIX = '_timestamps'
 
 
 def main():
@@ -39,7 +44,10 @@ def main():
     )
     parser.add_argument(
         "--align_type",
-        choices=[ALIGN_BY_DELTA, ALIGN_BY_REF, ALIGN_CSV, ALIGN_FLASH],
+        choices=[
+            ALIGN_BY_DELTA, ALIGN_BY_REF,
+            ALIGN_CSV, ALIGN_FLASH, ALIGN_ACCEL,
+            ALIGN_GYRO],
         help='<Required> Alignment type',
         required=True
     )
@@ -53,7 +61,6 @@ def main():
         required=False
     )
 
-
     args = parser.parse_args()
     time_ref_file = args.time_ref_file.name
     target_dir = args.target_dir
@@ -66,6 +73,10 @@ def main():
         align_csv(time_ref_file, target_dir, args.vid, FRAME_SUFFIX)
     elif args.align_type == ALIGN_FLASH:
         align_csv(time_ref_file, target_dir, args.vid, FLASH_SUFFIX)
+    elif args.align_type == ALIGN_ACCEL:
+        align_imu(time_ref_file, target_dir, args.vid, ACCEL_SUFFIX)
+    elif args.align_type == ALIGN_GYRO:
+        align_imu(time_ref_file, target_dir, args.vid, GYRO_SUFFIX)
 
 
 if __name__ == '__main__':
