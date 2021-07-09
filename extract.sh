@@ -18,7 +18,7 @@ set -eo pipefail
 SMARTPHONE_VIDEO_DIR="smartphone_video_frames"
 
 # Import configuration values
-source extract.conf
+source configs/full-bandeja.conf
 # Activate virtual environment
 source venv/bin/activate
 source /opt/ros/melodic/setup.bash
