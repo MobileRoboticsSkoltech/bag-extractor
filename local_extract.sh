@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright 2020 Mobile Robotics Lab. at Skoltech
+# Copyright 2021 Mobile Robotics Lab. at Skoltech
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,16 +15,19 @@
 
 set -eo pipefail
 
+SCRIPT_DIR=$(dirname $(readlink -f $0))
+CAM_TRAJ_PATH="CameraTrajectory.txt"
 # Import configuration values
-source extract.conf
-# Activate virtual environment
-source venv/bin/activate
-source /opt/ros/melodic/setup.bash
+source configs/full-bandeja.conf
 
-DATA_DIR=$1
+DATA_DIR_=$1
+DATA_DIR=$(echo "$DATA_DIR_" | sed 's:/*$::')
+echo "$DATA_DIR_" "$DATA_DIR/"
+
 SMARTPHONE_VIDEO_DIR="smartphone_video_frames"
+IMU_DIR="_mcu_imu"
 
-video_files=("$DATA_DIR$SMARTPHONE_VIDEO_DIR"/*.mp4)
+video_files=("$DATA_DIR/$SMARTPHONE_VIDEO_DIR"/*.mp4)
 echo "Found video file ${video_files[0]}"
 SMARTPHONE_VIDEO_PATH="${video_files[0]}"
 
@@ -32,17 +35,16 @@ SMARTPHONE_VIDEO_PATH="${video_files[0]}"
 if [ ! -f "$SMARTPHONE_VIDEO_PATH" ]; then
     >&2 echo "Smartphone video file doesn't exist"
 else
-    ffmpeg -i "$SMARTPHONE_VIDEO_PATH" -vsync 0 "$DATA_DIR$SMARTPHONE_VIDEO_DIR/frame-%d.png"
-    python2 extract.py --output "$DATA_DIR"\
-     --type sm_frames --frame_dir "$DATA_DIR$SMARTPHONE_VIDEO_DIR" --vid "$SMARTPHONE_VIDEO_PATH"
+    rm -f "$DATA_DIR/$SMARTPHONE_VIDEO_DIR/"*.png
+    ffmpeg -i "$SMARTPHONE_VIDEO_PATH" -vsync 0 "$DATA_DIR/$SMARTPHONE_VIDEO_DIR/frame-%d.png"
+    python "$SCRIPT_DIR/local_extract.py" --output "$DATA_DIR"\
+     --frame_dir "$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --vid "$SMARTPHONE_VIDEO_PATH"
 fi
 
-while IFS=, read -r seq timestamp col3
-do
-    echo "Sequence: $seq | starts with $timestamp"
-    SEQUENCE_TIMESTAMPS=("${SEQUENCE_TIMESTAMPS[@]}" "$timestamp")
-done < "$DATA_DIR"_sequences_ts/time_ref.csv
-
+while IFS=, read -r seq timestamp col3; do
+  echo "Sequence: $seq | starts with $timestamp"
+  SEQUENCE_TIMESTAMPS=("${SEQUENCE_TIMESTAMPS[@]}" "$timestamp")
+done <"$DATA_DIR"/_sequences_ts/time_ref.csv
 
 # Split to sequences
 if [ "$2" == "--split" ]; then
@@ -50,36 +52,29 @@ if [ "$2" == "--split" ]; then
   if [ ${#SEQUENCE_TIMESTAMPS[@]} -eq 0 ]; then
     echo "No sequence timestamps were found, skipping split"
   else
-    ALL_TOPICS=( "${PCD_TOPICS[@]}" "${IMG_TOPICS[@]}"\
-    "${IMU_TOPICS[@]}" "${TEMP_TOPICS[@]}" "${DEPTH_IMG_TOPICS[@]}" )
-    for topic in "${ALL_TOPICS[@]}" 
-      do
-        if [ ! -d "$DATA_DIR${topic//\//_}" ]; then
-          >&2 echo "Skipping topic directory which doesn't exist"
-        else
-          python2 split.py --target_dir "$DATA_DIR${topic//\//_}" --data_dir "$DATA_DIR" --timestamps "${SEQUENCE_TIMESTAMPS[@]}"
-        fi
-      done
+    ALL_TOPICS=("${DEPTH_IMG_TOPICS[@]}")
+    for topic in "${ALL_TOPICS[@]}"; do
+      if [ ! -d "$DATA_DIR/${topic//\//_}" ]; then
+        echo >&2 "Skipping topic directory which doesn't exist"
+      else
+        python "$SCRIPT_DIR/split.py" --type file --target_dir "$DATA_DIR/${topic//\//_}" --data_dir "$DATA_DIR" --timestamps "${SEQUENCE_TIMESTAMPS[@]}"
+      fi
+    done
 
-      python2 split.py --target_dir "$DATA_DIR$SMARTPHONE_VIDEO_DIR" --data_dir "$DATA_DIR" --timestamps "${SEQUENCE_TIMESTAMPS[@]}"
+    for csv_file in "$DATA_DIR"/"$IMU_DIR"/*.csv; do
+      python "$SCRIPT_DIR/split.py" --type csv_t_first --target_dir "$DATA_DIR/$IMU_DIR" --data_dir "$DATA_DIR" --timestamps "${SEQUENCE_TIMESTAMPS[@]}" \
+        --csv "$(basename "$csv_file")"
+    done
 
-      for cam_info in "${CAM_INFO_TOPICS[@]}"
-        do
-          if [ ! -d "$DATA_DIR${topic//\//_}" ]; then
-            >&2 echo "Skipping topic directory which doesn't exist"
-          else
-            ind=0
-            for seq in  "${SEQUENCE_TIMESTAMPS[@]}"
-            do
-              rm -rf "$DATA_DIR""seq_$ind/${cam_info//\//_}"
-              mkdir "$DATA_DIR""seq_$ind/${cam_info//\//_}" &&
-              cp "$DATA_DIR${cam_info//\//_}/camera_info.yaml" "$DATA_DIR""seq_$ind/${cam_info//\//_}/camera_info.yaml"
-              ind=$((ind+1))
-            done
-            rm -rf "$DATA_DIR""seq_$ind/${cam_info//\//_}"
-            mkdir "$DATA_DIR""seq_$ind/${cam_info//\//_}" &&
-            cp "$DATA_DIR${cam_info//\//_}/camera_info.yaml" "$DATA_DIR""seq_$ind/${cam_info//\//_}/camera_info.yaml"
-          fi
-        done
+    python "$SCRIPT_DIR/split.py" --type file --target_dir "$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --data_dir "$DATA_DIR" --timestamps "${SEQUENCE_TIMESTAMPS[@]}"
+
+    for csv_file in "$DATA_DIR"/"$SMARTPHONE_VIDEO_DIR"/*.csv; do
+      python "$SCRIPT_DIR/split.py" --type csv_t_last --target_dir "$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --data_dir "$DATA_DIR" --timestamps "${SEQUENCE_TIMESTAMPS[@]}" \
+        --csv "$(basename "$csv_file")"
+    done
+
+    python "$SCRIPT_DIR/split.py" --type csv_t_first --target_dir "$DATA_DIR" --data_dir "$DATA_DIR" --timestamps "${SEQUENCE_TIMESTAMPS[@]}" \
+        --csv "$CAM_TRAJ_PATH" --space 1 --time_unit 1000000000
   fi
+
 fi
