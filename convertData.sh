@@ -8,6 +8,9 @@ POSES=$PERSON_DIR/*
 
 for POSE in $POSES
 do
-	./local_extract.sh $POSE
-	./toASL.sh $POSE
+    if [[ -d "$POSE" && ! -L "$POSE" ]]
+    then
+	    ./local_extract.sh $POSE
+	    ./toASL.sh $POSE
+    fi
 done
