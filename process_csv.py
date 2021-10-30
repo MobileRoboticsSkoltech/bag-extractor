@@ -23,7 +23,7 @@ if __name__ == '__main__':
     }
 
     dataframe = pd.DataFrame(data=data)
-    dataframe.to_csv(outputFilename, sep='\t', encoding='utf-8', index=False)
+    dataframe.to_csv(outputFilename, sep=',', encoding='utf-8', index=False)
 
     # ----------#
 
@@ -84,5 +84,5 @@ if __name__ == '__main__':
         }
 
     dataframe = pd.DataFrame(data=data)
-    dataframe.to_csv(outputFilename, sep='\t', encoding='utf-8', index=False)
+    dataframe.to_csv(outputFilename, sep=',', encoding='utf-8', index=False)
 
